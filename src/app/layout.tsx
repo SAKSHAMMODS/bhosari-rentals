@@ -5,8 +5,8 @@ import { Toaster } from '@/components/ui/toaster';
 import { FirebaseClientProvider } from '@/firebase';
 
 export const metadata: Metadata = {
-  title: 'Bhosari Rentals | Premium Bike Hire',
-  description: 'High-performance bike rentals for modern commuters and explorers.',
+  title: 'BHOSARI RENTALS | Premium Bike Hire',
+  description: 'High-performance bike rentals for modern operatives. Standardized fleet and professional service.',
 };
 
 export default function RootLayout({
