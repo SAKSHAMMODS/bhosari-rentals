@@ -43,6 +43,7 @@ export default function CheckoutPage() {
     try {
       const parsedData = JSON.parse(rawData);
       setDetails(parsedData);
+      // Generate a unique ID after hydration to avoid mismatch
       setConfirmationId(`VH-${Math.random().toString(36).substring(2, 11)}`.toUpperCase());
     } catch (e) {
       console.error("Failed to parse rental details", e);
