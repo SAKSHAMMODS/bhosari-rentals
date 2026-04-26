@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from 'react';
@@ -104,7 +103,7 @@ export default function CheckoutPage() {
       key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_SiB4ZzRprgn4b8",
       amount: finalAmountINR * 100,
       currency: "INR",
-      name: "Bhosari Rentals",
+      name: "BHOSARI RENTALS",
       description: `${details.brand} ${details.model} - ${details.days} Day Rental`,
       image: "https://firebasestorage.googleapis.com/v0/b/studio-9741197854-fd9d5.firebasestorage.app/o/download.webp?alt=media&token=7b4ca477-2d86-442d-a097-0f03a70b5124",
       handler: function (response: any) {
