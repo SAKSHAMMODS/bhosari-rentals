@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from 'react';
@@ -9,6 +8,8 @@ import { ArrowLeft, CheckCircle2, ShieldCheck, Truck, Loader2, Mail, CreditCard 
 import Link from 'next/link';
 import { toast } from '@/hooks/use-toast';
 import Script from 'next/script';
+import { useUser, useFirestore, setDocumentNonBlocking } from '@/firebase';
+import { doc, serverTimestamp } from 'firebase/firestore';
 
 interface RentalDetails {
   bikeId: string;
@@ -34,6 +35,8 @@ declare global {
 
 export default function CheckoutPage() {
   const router = useRouter();
+  const { user } = useUser();
+  const db = useFirestore();
   const [details, setDetails] = useState<RentalDetails | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
   const [confirmationId, setConfirmationId] = useState<string>("");
@@ -58,7 +61,7 @@ export default function CheckoutPage() {
   }, [router, isSuccess]);
 
   const handleRazorpayPayment = () => {
-    if (!details) return;
+    if (!details || !user || !db) return;
 
     setIsProcessing(true);
 
@@ -66,12 +69,30 @@ export default function CheckoutPage() {
     
     const options = {
       key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_SiB4ZzRprgn4b8",
-      amount: finalAmountINR * 100, // Amount in paise
+      amount: finalAmountINR * 100,
       currency: "INR",
       name: "Velohub Rentals",
       description: `${details.brand} ${details.model} - 7 Day Rental`,
       image: "https://firebasestorage.googleapis.com/v0/b/studio-9741197854-fd9d5.firebasestorage.app/o/download.webp?alt=media&token=7b4ca477-2d86-442d-a097-0f03a70b5124",
       handler: function (response: any) {
+        // Save booking to Firestore
+        const bookingId = confirmationId;
+        const bookingRef = doc(db, 'users', user.uid, 'bookings', bookingId);
+        
+        setDocumentNonBlocking(bookingRef, {
+          id: bookingId,
+          bikeId: details.bikeId,
+          userId: user.uid,
+          startDate: details.startDate,
+          endDate: details.endDate,
+          totalPrice: finalAmountINR,
+          bookingDate: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+          status: 'confirmed',
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+          razorpay_payment_id: response.razorpay_payment_id
+        }, { merge: true });
+
         setIsSuccess(true);
         sessionStorage.removeItem('pendingRental');
         toast({
@@ -134,9 +155,9 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          <Link href="/">
+          <Link href="/my-bikes">
             <Button className="w-full bg-primary hover:bg-primary/90 text-white uppercase tracking-[0.2em] font-bold h-12 text-xs">
-              Return to Fleet
+              View My Rentals
             </Button>
           </Link>
         </Card>

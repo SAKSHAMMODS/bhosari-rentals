@@ -28,6 +28,15 @@ export function Navbar() {
       >
         Catalog
       </Link>
+      {user && (
+        <Link 
+          href="/my-bikes" 
+          onClick={() => setIsOpen(false)}
+          className="hover:text-primary transition-colors py-2 md:py-0 text-accent font-bold"
+        >
+          My Bikes
+        </Link>
+      )}
       <a 
         href="mailto:sakshambhor@gmail.com" 
         className="hover:text-primary transition-colors py-2 md:py-0"

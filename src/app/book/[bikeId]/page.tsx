@@ -12,29 +12,9 @@ import { addDays, format, startOfToday } from 'date-fns';
 import { Calendar as CalendarIcon, ShieldCheck, Info, User, Phone, Mail, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useUser } from '@/firebase';
+import { BIKES } from '@/lib/bikes';
 
 const RENTAL_DAYS = 7;
-
-const BIKES = [
-  {
-    id: 'classic-350',
-    brand: 'Royal Enfield',
-    model: 'Classic 350',
-    price: 1200,
-  },
-  {
-    id: 'hayabusa',
-    brand: 'Suzuki',
-    model: 'Hayabusa',
-    price: 8500,
-  },
-  {
-    id: 'himalayan',
-    brand: 'Royal Enfield',
-    model: 'Himalayan',
-    price: 1800,
-  }
-];
 
 export default function BookingPage() {
   const params = useParams();
@@ -43,7 +23,6 @@ export default function BookingPage() {
   const bikeId = params.bikeId as string;
   const bike = BIKES.find(b => b.id === bikeId);
 
-  // Use undefined for initial state to avoid hydration mismatch
   const [date, setDate] = useState<DateRange | undefined>(undefined);
   const [hasMounted, setHasMounted] = useState(false);
 
@@ -67,9 +46,6 @@ export default function BookingPage() {
   }, [user]);
 
   const handleSelect = (range: DateRange | undefined) => {
-    // React-day-picker v9 behavior: 
-    // If the user clicks a day, range.from will be that day.
-    // We immediately force the 7-day block.
     if (range?.from) {
       setDate({
         from: range.from,
@@ -111,7 +87,6 @@ export default function BookingPage() {
     return <div className="container mx-auto py-20 text-center">Equipment not found.</div>;
   }
 
-  // Prevents UI jumping and hydration errors
   if (!hasMounted) {
     return (
       <div className="container mx-auto px-4 py-8 text-center">
