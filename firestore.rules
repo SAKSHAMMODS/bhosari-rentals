@@ -1,0 +1,100 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * VELOHUB RENTALS SECURITY RULES
+     *
+     * Core Philosophy:
+     * This ruleset enforces a strict user-ownership model for personal data and a public-read 
+     * model for the rental catalog. All user-specific data is nested under the user's 
+     * unique ID to ensure clear boundaries and efficient querying.
+     *
+     * Data Structure:
+     * - /users/{userId}: Private user profile data.
+     * - /users/{userId}/bookings/{bookingId}: Private rental history for a specific user.
+     * - /bikes/{bikeId}: Publicly accessible catalog of available bicycles.
+     *
+     * Key Security Decisions:
+     * 1. Ownership Model: Access to UserProfiles and Bookings is restricted to the 
+     *    authenticated user matching the path's {userId}.
+     * 2. Denormalization: The 'userId' is stored inside the Booking document to allow 
+     *    fast verification against the auth token and path wildcards.
+     * 3. Prototyping Flexibility: Schema validation is limited to relational integrity 
+     *    (e.g., ensuring a booking's userId matches the owner) to allow for rapid UI iteration.
+     * 4. Catalog Safety: Bikes are read-only for public users. Administrative write access 
+     *    is currently restricted as the schema lacks ownership/admin fields.
+     */
+
+    // --- HELPER FUNCTIONS ---
+
+    /**
+     * @description Checks if the request is from an authenticated user.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * @description Checks if the authenticated user's UID matches the provided userId.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * @description Combined check for ownership and ensuring the document already exists.
+     * Used for update and delete operations.
+     */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
+
+    // --- COLLECTION RULES ---
+
+    /**
+     * @description Rules for the UserProfile collection. Users can only manage their own profile.
+     * @path /users/{userId}
+     * @allow get: (auth.uid == 'abc') requesting /users/abc
+     * @deny list: (auth.uid == 'abc') requesting /users (Listing all users is prohibited)
+     * @principle Restricts access to a user's own data tree and enforces UID consistency.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(userId);
+
+      /**
+       * @description Rules for the Booking subcollection. Users own their booking history.
+       * @path /users/{userId}/bookings/{bookingId}
+       * @allow create: (auth.uid == 'abc') creating /users/abc/bookings/123 with {userId: 'abc'}
+       * @deny update: (auth.uid == 'abc') trying to change the 'userId' field in an existing booking.
+       * @principle Enforces document ownership via path-based nesting and relational field immutability.
+       */
+      match /bookings/{bookingId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && request.resource.data.userId == userId;
+        allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+        allow delete: if isExistingOwner(userId);
+      }
+    }
+
+    /**
+     * @description Rules for the Bike collection. The catalog is public, but writes are protected.
+     * @path /bikes/{bikeId}
+     * @allow get, list: Publicly available for all users (signed in or anonymous).
+     * @deny create, update, delete: Unauthorized write attempts.
+     * @principle Public read access for marketing content with strictly denied writes.
+     */
+    match /bikes/{bikeId} {
+      allow get, list: if true;
+      
+      // CRITICAL: Cannot implement owner-only writes. The 'Bike' entity is missing an 'ownerId' or 'authorId' field.
+      // Administrative access should be handled via a custom claim or a specialized admin collection check.
+      allow create, update, delete: if false; // TODO: Add admin/owner validation once the schema is updated with an ownership field.
+    }
+  }
+}

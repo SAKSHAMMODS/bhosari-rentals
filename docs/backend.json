@@ -1,0 +1,268 @@
+{
+  "entities": {
+    "Bike": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Bike",
+      "type": "object",
+      "description": "Represents a single bicycle available for rent in the Velohub Rentals inventory.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Bike entity."
+        },
+        "title": {
+          "type": "string",
+          "description": "The marketable name of the bike."
+        },
+        "description": {
+          "type": "string",
+          "description": "A detailed description of the bike, highlighting its features and unique selling points (can be AI-generated)."
+        },
+        "pricePerDay": {
+          "type": "number",
+          "description": "The rental price for the bike per day."
+        },
+        "make": {
+          "type": "string",
+          "description": "The manufacturer or brand of the bike."
+        },
+        "model": {
+          "type": "string",
+          "description": "The specific model name of the bike."
+        },
+        "type": {
+          "type": "string",
+          "description": "The category of the bike (e.g., 'Road', 'Mountain', 'Hybrid', 'Electric')."
+        },
+        "size": {
+          "type": "string",
+          "description": "The frame size of the bike (e.g., 'Small', 'Medium', 'Large', '54cm')."
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "URL to an image of the bike, displayed on the catalog page.",
+          "format": "uri"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the bike record was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the bike record was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "description",
+        "pricePerDay",
+        "make",
+        "model",
+        "type",
+        "size",
+        "imageUrl",
+        "createdAt"
+      ]
+    },
+    "Booking": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Booking",
+      "type": "object",
+      "description": "Manages a specific rental reservation for a bike by a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Booking entity."
+        },
+        "bikeId": {
+          "type": "string",
+          "description": "Reference to the Bike being rented. (Relationship: Bike 1:N Booking)"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the user who made the booking, typically the Firebase Auth UID. (Relationship: UserProfile 1:N Booking)"
+        },
+        "startDate": {
+          "type": "string",
+          "description": "The start date and time of the rental period.",
+          "format": "date-time"
+        },
+        "endDate": {
+          "type": "string",
+          "description": "The end date and time of the rental period.",
+          "format": "date-time"
+        },
+        "totalPrice": {
+          "type": "number",
+          "description": "The calculated total price for the entire rental duration."
+        },
+        "bookingDate": {
+          "type": "string",
+          "description": "The date and time when the booking was created.",
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "description": "The current status of the booking (e.g., 'pending', 'confirmed', 'cancelled', 'completed')."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the booking record was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the booking record was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "bikeId",
+        "userId",
+        "startDate",
+        "endDate",
+        "totalPrice",
+        "bookingDate",
+        "status",
+        "createdAt"
+      ]
+    },
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Stores additional, non-authentication related information about a user, linked by their external authentication ID.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the UserProfile entity, which corresponds to the external authentication system's user ID (e.g., Firebase Auth UID)."
+        },
+        "firstName": {
+          "type": "string",
+          "description": "The first name of the user."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "The last name of the user."
+        },
+        "email": {
+          "type": "string",
+          "description": "The user's primary email address.",
+          "format": "email"
+        },
+        "phone": {
+          "type": "string",
+          "description": "The user's contact phone number."
+        },
+        "addressLine1": {
+          "type": "string",
+          "description": "The first line of the user's street address."
+        },
+        "addressLine2": {
+          "type": "string",
+          "description": "The second line of the user's street address, if applicable."
+        },
+        "city": {
+          "type": "string",
+          "description": "The city of the user's address."
+        },
+        "stateProvince": {
+          "type": "string",
+          "description": "The state or province of the user's address."
+        },
+        "postalCode": {
+          "type": "string",
+          "description": "The postal or ZIP code of the user's address."
+        },
+        "country": {
+          "type": "string",
+          "description": "The country of the user's address."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the user profile was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the user profile was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "firstName",
+        "lastName",
+        "email",
+        "createdAt"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores individual user profile data. The document ID `{userId}` corresponds to the Firebase Auth UID. The 'id' field within the UserProfile document also explicitly holds the user's UID for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user, matching their Firebase Authentication UID."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/bikes/{bikeId}",
+        "definition": {
+          "entityName": "Bike",
+          "schema": {
+            "$ref": "#/backend/entities/Bike"
+          },
+          "description": "Stores details of all available bikes for rent. This collection is publicly readable to display the bike catalog. It does not require user-specific denormalization for authorization.",
+          "params": [
+            {
+              "name": "bikeId",
+              "description": "The unique identifier for a specific bike in the inventory."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/bookings/{bookingId}",
+        "definition": {
+          "entityName": "Booking",
+          "schema": {
+            "$ref": "#/backend/entities/Booking"
+          },
+          "description": "Stores specific rental bookings made by a user. Each booking document includes a denormalized 'userId' field, which matches the parent path's `{userId}` wildcard, enabling robust authorization without `get()` calls.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who made the booking, matching their Firebase Authentication UID."
+            },
+            {
+              "name": "bookingId",
+              "description": "The unique identifier for a specific rental booking."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The proposed Firestore structure for Velohub Rentals prioritizes secure, scalable, and debuggable access patterns by strictly adhering to the core design principles. \n\n**Authorization Independence:**\n*   **UserProfile:** User profiles are stored at `/users/{userId}` where `{userId}` directly corresponds to the Firebase Authentication UID. The `UserProfile` document itself contains an `id` field which matches this UID. This design ensures that authorization rules for a user's profile are entirely self-contained within the path and the document, eliminating the need for `get()` calls to other documents for validation. A user can only access their own profile, which is evident from `request.auth.uid == userId` in rules. This provides atomic read/write operations.\n*   **Bike:** The `/bikes/{bikeId}` collection houses all bicycle inventory. These documents are designed for public read access (for the catalog display). Since access doesn't depend on user-specific attributes or parent documents, this collection naturally achieves authorization independence. Any write access would be granted via an `admin` role, implemented as a separate top-level collection (e.g., `/roles_admin/{uid}`) following DBAC principles.\n*   **Booking:** Bookings are stored hierarchically under the user's profile at `/users/{userId}/bookings/{bookingId}`. Each `Booking` document explicitly includes the `userId` field. This denormalization means that the `userId` in the document can be directly compared with `request.auth.uid` and the `{userId}` wildcard in the path for authorization, without requiring any `get()` operations. This ensures that a user can only list, create, read, update, or delete their own bookings, maintaining strong authorization independence and supporting atomic operations.\n\n**QAPs (Rules are not Filters) Support:**\n*   **Bike Catalog:** The `/bikes` collection is designed for public `list` operations, directly supporting the Bike Catalog Display feature. Since all documents within this collection share the same public read security posture, a `list` query for `/bikes` will return all available bikes without requiring security rules to filter results, thereby respecting the QAPs principle.\n*   **User-Specific Data:** For `UserProfile` and `Booking` data, the use of path-based ownership (`/users/{userId}/...`) intrinsically supports QAPs. When a user requests `/users/{request.auth.uid}/bookings`, the query's scope is already limited to their own data. The security rules can then efficiently grant access without attempting to filter results from a broader, un-indexed collection. Similarly, `get()` requests for `/users/{request.auth.uid}` are also QAP-compliant as the access is directly to a specific, authorized document.\n\n**Structural Segregation:**\n*   Each collection or subcollection (e.g., `/bikes`, `/users/{userId}`, `/users/{userId}/bookings`) maintains a homogeneous security posture. Public bike data is separate from private user data, and user profiles are separate from user bookings, even though they are hierarchically linked. This simplifies security rules significantly as rules applied to a given path template will apply uniformly to all documents within that collection, making authorization logic clear and less prone to errors."
+  }
+}
