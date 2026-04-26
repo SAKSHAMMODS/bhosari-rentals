@@ -1,13 +1,14 @@
+
 "use client";
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { ArrowLeft, CheckCircle2, ShieldCheck, Truck, Loader2, Mail } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, ShieldCheck, Truck, Loader2, Mail, CreditCard } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from '@/hooks/use-toast';
-import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import Script from 'next/script';
 
 interface RentalDetails {
   bikeId: string;
@@ -25,14 +26,20 @@ interface RentalDetails {
   };
 }
 
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
+
 export default function CheckoutPage() {
   const router = useRouter();
   const [details, setDetails] = useState<RentalDetails | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
   const [confirmationId, setConfirmationId] = useState<string>("");
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
-    // Only run on client
     const rawData = sessionStorage.getItem('pendingRental');
     
     if (!rawData) {
@@ -43,7 +50,6 @@ export default function CheckoutPage() {
     try {
       const parsedData = JSON.parse(rawData);
       setDetails(parsedData);
-      // Generate a unique ID after hydration to avoid mismatch
       setConfirmationId(`VH-${Math.random().toString(36).substring(2, 11)}`.toUpperCase());
     } catch (e) {
       console.error("Failed to parse rental details", e);
@@ -51,13 +57,53 @@ export default function CheckoutPage() {
     }
   }, [router, isSuccess]);
 
-  const handlePaymentSuccess = (paymentDetails: any) => {
-    setIsSuccess(true);
-    sessionStorage.removeItem('pendingRental');
-    toast({
-      title: "BOOKING CONFIRMED",
-      description: "Electronic documentation transmitted.",
+  const handleRazorpayPayment = () => {
+    if (!details) return;
+
+    setIsProcessing(true);
+
+    const finalAmountINR = (details.totalPrice || 0) + 500;
+    
+    const options = {
+      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_placeholder",
+      amount: finalAmountINR * 100, // Amount in paise
+      currency: "INR",
+      name: "Velohub Rentals",
+      description: `${details.brand} ${details.model} - 7 Day Rental`,
+      image: "https://firebasestorage.googleapis.com/v0/b/studio-9741197854-fd9d5.firebasestorage.app/o/download.webp?alt=media&token=7b4ca477-2d86-442d-a097-0f03a70b5124",
+      handler: function (response: any) {
+        setIsSuccess(true);
+        sessionStorage.removeItem('pendingRental');
+        toast({
+          title: "BOOKING CONFIRMED",
+          description: "Payment captured. ID: " + response.razorpay_payment_id,
+        });
+      },
+      prefill: {
+        name: details.customer.name,
+        email: details.customer.email,
+        contact: details.customer.phone,
+      },
+      theme: {
+        color: "#3b82f6",
+      },
+      modal: {
+        ondismiss: function() {
+          setIsProcessing(false);
+        }
+      }
+    };
+
+    const rzp1 = new window.Razorpay(options);
+    rzp1.on('payment.failed', function (response: any) {
+      setIsProcessing(false);
+      toast({
+        variant: "destructive",
+        title: "PAYMENT FAILED",
+        description: response.error.description,
+      });
     });
+    rzp1.open();
   };
 
   if (isSuccess) {
@@ -106,10 +152,11 @@ export default function CheckoutPage() {
   );
 
   const finalAmountINR = (details.totalPrice || 0) + 500;
-  const finalAmountUSD = (finalAmountINR / 80).toFixed(2);
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" />
+      
       <Link href={`/book/${details.bikeId}`} className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-6 md:mb-8 uppercase tracking-widest text-[10px] md:text-xs font-bold">
         <ArrowLeft className="w-4 h-4" /> Edit Configuration
       </Link>
@@ -197,42 +244,18 @@ export default function CheckoutPage() {
               <div className="w-full">
                 <p className="text-[9px] md:text-[10px] text-muted-foreground uppercase tracking-widest mb-4 text-center">Authorized Gateway Only</p>
                 
-                <PayPalScriptProvider options={{ 
-                  "client-id": process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || "AfisfrZDGuLvnkhYyuRR5gidAmvmf_ecff1JoDMriEgdIkeJ84QJ-yD2L_UpZtjiFhZhoSNdXGCQlRGD",
-                  currency: "USD" 
-                }}>
-                  <div className="min-h-[150px]">
-                    <PayPalButtons
-                      style={{ layout: "vertical", color: "gold", shape: "rect", label: "paypal" }}
-                      createOrder={(data, actions) => {
-                        return actions.order.create({
-                          intent: "CAPTURE",
-                          purchase_units: [{
-                            amount: {
-                              currency_code: "USD",
-                              value: finalAmountUSD,
-                            },
-                            description: `VH: ${details.brand} ${details.model}`
-                          }],
-                        });
-                      }}
-                      onApprove={async (data, actions) => {
-                        if (actions.order) {
-                          const paymentDetails = await actions.order.capture();
-                          handlePaymentSuccess(paymentDetails);
-                        }
-                      }}
-                      onError={(err) => {
-                        console.error("PayPal Error:", err);
-                        toast({
-                          variant: "destructive",
-                          title: "PAYMENT ERROR",
-                          description: "Transaction rejected. Verify source.",
-                        });
-                      }}
-                    />
-                  </div>
-                </PayPalScriptProvider>
+                <Button 
+                  onClick={handleRazorpayPayment}
+                  disabled={isProcessing}
+                  className="w-full bg-primary hover:bg-primary/90 text-white uppercase tracking-[0.2em] font-bold py-8 text-[12px] md:text-sm flex items-center justify-center gap-3 glow-primary"
+                >
+                  {isProcessing ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <CreditCard className="w-5 h-5" />
+                  )}
+                  {isProcessing ? "PROCESSING..." : "PAY WITH RAZORPAY"}
+                </Button>
               </div>
               <p className="text-[8px] md:text-[9px] text-center text-muted-foreground uppercase tracking-widest">
                 Protocol: Secure P2P Encrypted Transfer Active
