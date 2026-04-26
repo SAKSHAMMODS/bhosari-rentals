@@ -74,7 +74,7 @@ export default function SignupPage() {
           </div>
           <CardTitle className="text-2xl font-bold tracking-tighter">OPERATIVE REGISTRATION</CardTitle>
           <CardDescription className="uppercase tracking-widest text-[10px] text-muted-foreground">
-            Initialize your Velohub profile
+            Initialize your Bhosari Rentals profile
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSignup}>

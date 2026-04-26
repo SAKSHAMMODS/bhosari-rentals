@@ -3,7 +3,7 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * VELOHUB RENTALS SECURITY RULES
+     * BHOSARI RENTALS SECURITY RULES
      *
      * Core Philosophy:
      * This ruleset enforces a strict user-ownership model for personal data and a public-read 
@@ -85,16 +85,15 @@ service cloud.firestore {
     /**
      * @description Rules for the Bike collection. The catalog is public, but writes are protected.
      * @path /bikes/{bikeId}
-     * @allow get, list: Publicly available for all users (signed in or anonymous).
-     * @deny create, update, delete: Unauthorized write attempts.
-     * @principle Public read access for marketing content with strictly denied writes.
+     * @allow get, list: if true;
+     * 
+     * CRITICAL: Cannot implement owner-only writes. The 'Bike' entity is missing an 'ownerId' or 'authorId' field.
+     * Administrative access should be handled via a custom claim or a specialized admin collection check.
      */
     match /bikes/{bikeId} {
       allow get, list: if true;
       
-      // CRITICAL: Cannot implement owner-only writes. The 'Bike' entity is missing an 'ownerId' or 'authorId' field.
-      // Administrative access should be handled via a custom claim or a specialized admin collection check.
-      allow create, update, delete: if false; // TODO: Add admin/owner validation once the schema is updated with an ownership field.
+      allow create, update, delete: if false; 
     }
   }
 }

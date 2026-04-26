@@ -54,7 +54,7 @@ export default function CheckoutPage() {
     try {
       const parsedData = JSON.parse(rawData);
       setDetails(parsedData);
-      setConfirmationId(`VH-${Math.random().toString(36).substring(2, 11)}`.toUpperCase());
+      setConfirmationId(`BR-${Math.random().toString(36).substring(2, 11)}`.toUpperCase());
     } catch (e) {
       console.error("Failed to parse rental details", e);
       router.push('/');
@@ -73,7 +73,7 @@ export default function CheckoutPage() {
       key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_SiB4ZzRprgn4b8",
       amount: finalAmountINR * 100,
       currency: "INR",
-      name: "Velohub Rentals",
+      name: "Bhosari Rentals",
       description: `${details.brand} ${details.model} - ${details.days} Day Rental`,
       image: "https://firebasestorage.googleapis.com/v0/b/studio-9741197854-fd9d5.firebasestorage.app/o/download.webp?alt=media&token=7b4ca477-2d86-442d-a097-0f03a70b5124",
       handler: function (response: any) {
@@ -147,7 +147,7 @@ export default function CheckoutPage() {
           <div className="bg-secondary/50 p-4 md:p-6 rounded-sm border border-border mb-8 text-left space-y-4">
             <div>
               <p className="text-[9px] md:text-[10px] text-muted-foreground uppercase tracking-widest mb-1">Confirmation ID</p>
-              <p className="font-mono text-xs md:text-sm uppercase text-white truncate">{confirmationId || "VH-*********"}</p>
+              <p className="font-mono text-xs md:text-sm uppercase text-white truncate">{confirmationId || "BR-*********"}</p>
             </div>
             <div className="flex items-start gap-2 pt-2 border-t border-border">
               <Mail className="w-4 h-4 text-primary shrink-0" />

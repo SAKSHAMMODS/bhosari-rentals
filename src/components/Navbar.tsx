@@ -53,7 +53,7 @@ export function Navbar() {
           <div className="bg-primary p-1.5 rounded-sm glow-primary transition-transform group-hover:scale-105">
             <Bike className="w-5 h-5 text-white" />
           </div>
-          <span className="font-headline font-bold text-lg md:text-xl tracking-tighter">VELOHUB</span>
+          <span className="font-headline font-bold text-lg md:text-xl tracking-tighter">BHOSARI RENTALS</span>
         </Link>
 
         {/* Desktop Links */}

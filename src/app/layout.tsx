@@ -5,7 +5,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { FirebaseClientProvider } from '@/firebase';
 
 export const metadata: Metadata = {
-  title: 'Velohub Rentals | Premium Bike Hire',
+  title: 'Bhosari Rentals | Premium Bike Hire',
   description: 'High-performance bike rentals for modern commuters and explorers.',
 };
 
