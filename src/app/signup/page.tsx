@@ -8,7 +8,7 @@ import { useAuth } from '@/firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { UserPlus, ShieldCheck, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { UserPlus, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -33,7 +33,7 @@ export default function SignupPage() {
   const validatePasscode = (code: string) => {
     if (!code) return "Passcode field is empty.";
     if (!/^\d+$/.test(code)) return "The passcode must contain ONLY numeric digits (0-9). Symbols and letters are not permitted.";
-    if (code.length !== 5) return `The passcode must be exactly 5 digits long. You currently have ${code.length} digits.`;
+    if (code.length !== 6) return `The passcode must be exactly 6 digits long. You currently have ${code.length} digits.`;
     return null;
   };
 
@@ -49,16 +49,12 @@ export default function SignupPage() {
 
     setLoading(true);
     try {
-      // Firebase standard requires min 6 chars. 
-      // If we pad it internally or use a standard 6-char policy it might be safer,
-      // but here we follow the UI constraint of 5 digits if possible.
-      // Note: Most Firebase projects enforce 6 chars.
       await createUserWithEmailAndPassword(auth, email, password);
       toast({ title: "PROFILE CREATED", description: "Operative registration successful." });
       router.push('/');
     } catch (err: any) {
       if (err.code === 'auth/weak-password') {
-        setValidationMessage("Firebase Security Protocol Error: Passcode must be at least 6 characters for cloud storage. Please use a 6-digit numeric code instead.");
+        setValidationMessage("Firebase Security Protocol Error: Passcode must be at least 6 characters.");
         setShowValidationPopup(true);
       } else {
         setValidationMessage(err.message || "Registration parameters rejected by logistics hub.");
@@ -95,14 +91,14 @@ export default function SignupPage() {
               />
             </div>
             <div className="space-y-1">
-              <label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground ml-1">5-Digit Access Passcode</label>
+              <label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground ml-1">6-Digit Access Passcode</label>
               <div className="relative">
                 <Input 
                   type={showPassword ? "text" : "password"} 
-                  placeholder="00000" 
+                  placeholder="000000" 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  maxLength={5}
+                  maxLength={6}
                   inputMode="numeric"
                   required
                   className="bg-background border-border pr-10"

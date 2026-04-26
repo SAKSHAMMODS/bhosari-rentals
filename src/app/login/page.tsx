@@ -8,7 +8,7 @@ import { useAuth } from '@/firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { LogIn, ShieldCheck, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { ShieldCheck, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -33,7 +33,7 @@ export default function LoginPage() {
   const validatePasscode = (code: string) => {
     if (!code) return "Passcode field is empty.";
     if (!/^\d+$/.test(code)) return "The passcode must contain ONLY numeric digits (0-9). Symbols and letters are not permitted.";
-    if (code.length !== 5) return `The passcode must be exactly 5 digits long. You currently have ${code.length} digits.`;
+    if (code.length !== 6) return `The passcode must be exactly 6 digits long. You currently have ${code.length} digits.`;
     return null;
   };
 
@@ -49,7 +49,6 @@ export default function LoginPage() {
 
     setLoading(true);
     try {
-      // Note: Firebase usually requires 6 chars. If the project allows 5, this works.
       await signInWithEmailAndPassword(auth, email, password);
       toast({ title: "ACCESS GRANTED", description: "Identity verified." });
       router.push('/');
@@ -91,14 +90,14 @@ export default function LoginPage() {
               />
             </div>
             <div className="space-y-1">
-              <label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground ml-1">5-Digit Access Passcode</label>
+              <label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground ml-1">6-Digit Access Passcode</label>
               <div className="relative">
                 <Input 
                   type={showPassword ? "text" : "password"} 
-                  placeholder="00000" 
+                  placeholder="000000" 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  maxLength={5}
+                  maxLength={6}
                   inputMode="numeric"
                   required
                   className="bg-background border-border pr-10"
