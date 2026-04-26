@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from 'react';
@@ -101,7 +102,7 @@ export default function CheckoutPage() {
                       <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">{details?.brand}</p>
                       <h3 className="text-xl font-bold">{details?.model}</h3>
                     </div>
-                    <p className="font-bold text-accent">${details?.pricePerDay} / day</p>
+                    <p className="font-bold text-accent">₹{details?.pricePerDay} / day</p>
                   </div>
                   <div className="mt-6 flex flex-wrap gap-4 text-xs uppercase tracking-widest">
                     <div className="bg-secondary/50 px-3 py-1.5 rounded-sm border border-border">
@@ -111,7 +112,7 @@ export default function CheckoutPage() {
                       <span className="text-muted-foreground">End:</span> {details?.endDate}
                     </div>
                     <div className="bg-secondary/50 px-3 py-1.5 rounded-sm border border-border">
-                      {details?.days} Days Total
+                      {details?.days} Day Block
                     </div>
                   </div>
                 </CardContent>
@@ -146,21 +147,21 @@ export default function CheckoutPage() {
             <CardContent className="space-y-4">
               <div className="flex justify-between text-sm uppercase tracking-widest">
                 <span className="text-muted-foreground">Base Rental</span>
-                <span>${details?.totalPrice.toFixed(2)}</span>
+                <span>₹{details?.totalPrice.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-sm uppercase tracking-widest">
                 <span className="text-muted-foreground">Logistics Fee</span>
-                <span>$12.50</span>
+                <span>₹500.00</span>
               </div>
               <div className="flex justify-between text-sm uppercase tracking-widest">
-                <span className="text-muted-foreground">Tax</span>
-                <span>$0.00</span>
+                <span className="text-muted-foreground">GST</span>
+                <span>₹0.00</span>
               </div>
               <div className="h-px bg-border my-4" />
               <div className="flex justify-between items-center">
                 <span className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Total Amount Due</span>
                 <span className="text-3xl font-bold glow-primary text-white">
-                  ${(details ? details.totalPrice + 12.5 : 0).toFixed(2)}
+                  ₹{(details ? details.totalPrice + 500 : 0).toLocaleString()}
                 </span>
               </div>
             </CardContent>
@@ -168,7 +169,7 @@ export default function CheckoutPage() {
               <div className="w-full">
                 <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-4 text-center">Select Payment Vector</p>
                 <PayPalPlaceholder 
-                  amount={details ? details.totalPrice + 12.5 : 0} 
+                  amount={details ? details.totalPrice + 500 : 0} 
                   onComplete={handlePaymentComplete}
                 />
               </div>

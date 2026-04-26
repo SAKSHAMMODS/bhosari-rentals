@@ -2,40 +2,22 @@
 {
   "placeholderImages": [
     {
-      "id": "bike-1",
-      "description": "High-performance carbon road bike",
-      "imageUrl": "https://picsum.photos/seed/bike1/600/400",
-      "imageHint": "road bike"
+      "id": "classic-350",
+      "description": "Royal Enfield Classic 350 - Timeless design meets modern engineering. Ideal for city cruising and relaxed long-distance deployment.",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-9741197854-fd9d5.firebasestorage.app/o/download.webp?alt=media&token=7b4ca477-2d86-442d-a097-0f03a70b5124",
+      "imageHint": "Classic Motorcycle"
     },
     {
-      "id": "bike-2",
-      "description": "Rugged downhill mountain bike",
-      "imageUrl": "https://picsum.photos/seed/bike2/600/400",
-      "imageHint": "mountain bike"
+      "id": "hayabusa",
+      "description": "Suzuki Hayabusa - The ultimate sportbike. Legendary aerodynamic performance and unmatched power for rapid logistics.",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-9741197854-fd9d5.firebasestorage.app/o/download.jpg?alt=media&token=ac917ed7-b87c-4b5c-9884-a031a35199d1",
+      "imageHint": "Suzuki Hayabusa"
     },
     {
-      "id": "bike-3",
-      "description": "Modern urban electric commuter",
-      "imageUrl": "https://picsum.photos/seed/bike3/600/400",
-      "imageHint": "electric bike"
-    },
-    {
-      "id": "bike-4",
-      "description": "Sleek aerodynamic time trial bike",
-      "imageUrl": "https://picsum.photos/seed/bike4/600/400",
-      "imageHint": "racing bike"
-    },
-    {
-      "id": "bike-5",
-      "description": "Versatile gravel adventure bike",
-      "imageUrl": "https://picsum.photos/seed/bike5/600/400",
-      "imageHint": "gravel bike"
-    },
-    {
-      "id": "bike-6",
-      "description": "Retro-style city cruiser",
-      "imageUrl": "https://picsum.photos/seed/bike6/600/400",
-      "imageHint": "city cruiser"
+      "id": "himalayan",
+      "description": "Royal Enfield Himalayan - Built for all roads, and no roads. Specialized for rugged terrain and adventure-focused missions.",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-9741197854-fd9d5.firebasestorage.app/o/download%20(1).jpg?alt=media&token=866cc6c8-7b20-4216-b920-73cdb591852e",
+      "imageHint": "Adventure Motorcycle"
     }
   ]
 }

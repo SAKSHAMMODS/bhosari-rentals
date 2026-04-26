@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Bike, Gauge, Activity, ArrowRight } from 'lucide-react';
+import { Bike, Gauge, Activity, ArrowRight, Clock } from 'lucide-react';
 import { BookingModal } from '@/components/BookingModal';
 import { useState } from 'react';
 
@@ -35,7 +35,7 @@ export function BikeCard({ bike }: { bike: BikeProps }) {
         />
         <div className="absolute top-4 right-4">
           <Badge className="bg-background/80 backdrop-blur-sm border-border text-accent uppercase tracking-tighter">
-            ${bike.price} <span className="text-[10px] text-muted-foreground ml-1">/DAY</span>
+            ₹{bike.price} <span className="text-[10px] text-muted-foreground ml-1">/DAY</span>
           </Badge>
         </div>
       </div>
@@ -58,10 +58,10 @@ export function BikeCard({ bike }: { bike: BikeProps }) {
         </p>
         <div className="mt-4 grid grid-cols-2 gap-2">
           <div className="flex items-center gap-2 text-[10px] text-muted-foreground uppercase tracking-wider">
-            <Gauge className="w-3 h-3" /> Professional Grade
+            <Clock className="w-3 h-3" /> 7-Day Block Only
           </div>
           <div className="flex items-center gap-2 text-[10px] text-muted-foreground uppercase tracking-wider">
-            <Activity className="w-3 h-3" /> Fully Serviced
+            <Activity className="w-3 h-3" /> Hub Serviced
           </div>
         </div>
       </CardContent>
@@ -71,7 +71,7 @@ export function BikeCard({ bike }: { bike: BikeProps }) {
           onClick={() => setIsModalOpen(true)}
           className="w-full bg-secondary hover:bg-primary hover:text-white transition-all duration-300 uppercase tracking-[0.2em] text-xs font-bold border-border"
         >
-          Inspect & Book
+          Check Logistics
           <ArrowRight className="w-4 h-4 ml-2" />
         </Button>
       </CardFooter>
