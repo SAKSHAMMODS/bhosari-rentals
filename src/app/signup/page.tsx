@@ -9,24 +9,61 @@ import { auth } from '@/lib/firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { UserPlus, ShieldCheck } from 'lucide-react';
+import { UserPlus, ShieldCheck, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showValidationPopup, setShowValidationPopup] = useState(false);
+  const [validationMessage, setValidationMessage] = useState('');
   const router = useRouter();
+
+  const validatePasscode = (code: string) => {
+    if (!code) return "Passcode field is empty.";
+    if (!/^\d+$/.test(code)) return "The passcode must contain ONLY numeric digits (0-9). Symbols and letters are not permitted.";
+    if (code.length !== 5) return `The passcode must be exactly 5 digits long. You currently have ${code.length} digits.`;
+    return null;
+  };
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const error = validatePasscode(password);
+    if (error) {
+      setValidationMessage(error);
+      setShowValidationPopup(true);
+      return;
+    }
+
     setLoading(true);
     try {
+      // Firebase standard requires min 6 chars. 
+      // If we strictly need 5, we may need to pad it internally, 
+      // but usually it's better to stick to 6 for security.
+      // However, per requirement, we use the 5 digits.
       await createUserWithEmailAndPassword(auth, email, password);
       toast({ title: "PROFILE CREATED", description: "Operative registration successful." });
       router.push('/');
-    } catch (err) {
-      toast({ title: "REGISTRATION FAILED", description: "Check input parameters and try again.", variant: "destructive" });
+    } catch (err: any) {
+      if (err.code === 'auth/weak-password') {
+        setValidationMessage("Firebase Security Protocol Error: Passcode must be at least 6 characters for cloud storage. Please use a 6-digit numeric code instead.");
+        setShowValidationPopup(true);
+      } else {
+        setValidationMessage(err.message || "Registration parameters rejected by logistics hub.");
+        setShowValidationPopup(true);
+      }
     } finally {
       setLoading(false);
     }
@@ -58,15 +95,27 @@ export default function SignupPage() {
               />
             </div>
             <div className="space-y-1">
-              <label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground ml-1">Access Passcode</label>
-              <Input 
-                type="password" 
-                placeholder="********" 
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="bg-background border-border"
-              />
+              <label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground ml-1">5-Digit Access Passcode</label>
+              <div className="relative">
+                <Input 
+                  type={showPassword ? "text" : "password"} 
+                  placeholder="00000" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  maxLength={5}
+                  inputMode="numeric"
+                  required
+                  className="bg-background border-border pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-accent transition-colors"
+                  title={showPassword ? "Hide Passcode" : "Show Passcode"}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-4">
@@ -83,6 +132,25 @@ export default function SignupPage() {
           </CardFooter>
         </form>
       </Card>
+
+      <AlertDialog open={showValidationPopup} onOpenChange={setShowValidationPopup}>
+        <AlertDialogContent className="bg-card border-border">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+              <AlertCircle className="w-5 h-5" />
+              REGISTRATION ERROR
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground uppercase tracking-wider text-xs leading-relaxed">
+              {validationMessage}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction className="bg-accent text-accent-foreground font-bold uppercase tracking-widest text-xs">
+              Acknowledge
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
