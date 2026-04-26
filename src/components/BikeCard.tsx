@@ -5,8 +5,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Activity, ArrowRight, Clock } from 'lucide-react';
-import { BookingModal } from '@/components/BookingModal';
-import { useState } from 'react';
+import Link from 'next/link';
 
 interface BikeProps {
   id: string;
@@ -20,8 +19,6 @@ interface BikeProps {
 }
 
 export function BikeCard({ bike }: { bike: BikeProps }) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
   return (
     <Card className="group relative overflow-hidden bg-card border-border hover:border-primary/50 transition-all duration-300">
       <div className="relative h-64 w-full overflow-hidden bg-secondary">
@@ -66,20 +63,15 @@ export function BikeCard({ bike }: { bike: BikeProps }) {
       </CardContent>
 
       <CardFooter className="pt-0">
-        <Button 
-          onClick={() => setIsModalOpen(true)}
-          className="w-full bg-secondary hover:bg-primary hover:text-white transition-all duration-300 uppercase tracking-[0.2em] text-xs font-bold border-border"
-        >
-          View Details
-          <ArrowRight className="w-4 h-4 ml-2" />
-        </Button>
+        <Link href={`/book/${bike.id}`} className="w-full">
+          <Button 
+            className="w-full bg-secondary hover:bg-primary hover:text-white transition-all duration-300 uppercase tracking-[0.2em] text-xs font-bold border-border"
+          >
+            View Details
+            <ArrowRight className="w-4 h-4 ml-2" />
+          </Button>
+        </Link>
       </CardFooter>
-
-      <BookingModal 
-        bike={bike} 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-      />
     </Card>
   );
 }
