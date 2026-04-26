@@ -9,7 +9,7 @@ import { auth } from '@/lib/firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { LogIn, ShieldKeyhole } from 'lucide-react';
+import { LogIn, ShieldCheck } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 export default function LoginPage() {
@@ -37,7 +37,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-md bg-card border-border shadow-2xl">
         <CardHeader className="text-center">
           <div className="mx-auto bg-primary/20 w-12 h-12 flex items-center justify-center rounded-sm mb-4 glow-primary">
-            <ShieldKeyhole className="text-primary w-6 h-6" />
+            <ShieldCheck className="text-primary w-6 h-6" />
           </div>
           <CardTitle className="text-2xl font-bold tracking-tighter">SECURE LOGIN</CardTitle>
           <CardDescription className="uppercase tracking-widest text-[10px] text-muted-foreground">
