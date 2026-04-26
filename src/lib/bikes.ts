@@ -25,7 +25,7 @@ export const BIKES: Bike[] = [
     brand: 'Suzuki',
     model: 'Hayabusa',
     type: 'Superbike',
-    price: 8500,
+    price: 2000,
     description: "Suzuki Hayabusa - The ultimate sportbike. Legendary aerodynamic performance and unmatched power for rapid transport.",
     imageUrl: "https://firebasestorage.googleapis.com/v0/b/studio-9741197854-fd9d5.firebasestorage.app/o/download.jpg?alt=media&token=ac917ed7-b87c-4b5c-9884-a031a35199d1",
     imageHint: "Suzuki Hayabusa"
