@@ -65,7 +65,7 @@ export default function CheckoutPage() {
     const finalAmountINR = (details.totalPrice || 0) + 500;
     
     const options = {
-      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_placeholder",
+      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_SiB4ZzRprgn4b8",
       amount: finalAmountINR * 100, // Amount in paise
       currency: "INR",
       name: "Velohub Rentals",
@@ -85,7 +85,7 @@ export default function CheckoutPage() {
         contact: details.customer.phone,
       },
       theme: {
-        color: "#3b82f6",
+        color: "#147AEB",
       },
       modal: {
         ondismiss: function() {
