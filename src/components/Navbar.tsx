@@ -1,22 +1,14 @@
-
 "use client";
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Bike, User, LogIn, Menu } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import { auth } from '@/lib/firebase';
-import { onAuthStateChanged, User as FirebaseUser, signOut } from 'firebase/auth';
+import { Bike } from 'lucide-react';
+import { useAuth, useUser } from '@/firebase';
+import { signOut } from 'firebase/auth';
 
 export function Navbar() {
-  const [user, setUser] = useState<FirebaseUser | null>(null);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-    });
-    return () => unsubscribe();
-  }, []);
+  const auth = useAuth();
+  const { user } = useUser();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border h-16">

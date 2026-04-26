@@ -1,11 +1,10 @@
-
 "use client";
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardContent, CardFooter, CardTitle, CardDescription } from '@/components/ui/card';
-import { auth } from '@/lib/firebase';
+import { useAuth } from '@/firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -29,6 +28,7 @@ export default function LoginPage() {
   const [showValidationPopup, setShowValidationPopup] = useState(false);
   const [validationMessage, setValidationMessage] = useState('');
   const router = useRouter();
+  const auth = useAuth();
 
   const validatePasscode = (code: string) => {
     if (!code) return "Passcode field is empty.";
@@ -50,7 +50,6 @@ export default function LoginPage() {
     setLoading(true);
     try {
       // Note: Firebase usually requires 6 chars. If the project allows 5, this works.
-      // If not, we handle the Firebase weak-password error.
       await signInWithEmailAndPassword(auth, email, password);
       toast({ title: "ACCESS GRANTED", description: "Identity verified." });
       router.push('/');

@@ -1,11 +1,10 @@
-
 "use client";
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardContent, CardFooter, CardTitle, CardDescription } from '@/components/ui/card';
-import { auth } from '@/lib/firebase';
+import { useAuth } from '@/firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -29,6 +28,7 @@ export default function SignupPage() {
   const [showValidationPopup, setShowValidationPopup] = useState(false);
   const [validationMessage, setValidationMessage] = useState('');
   const router = useRouter();
+  const auth = useAuth();
 
   const validatePasscode = (code: string) => {
     if (!code) return "Passcode field is empty.";
@@ -50,9 +50,9 @@ export default function SignupPage() {
     setLoading(true);
     try {
       // Firebase standard requires min 6 chars. 
-      // If we strictly need 5, we may need to pad it internally, 
-      // but usually it's better to stick to 6 for security.
-      // However, per requirement, we use the 5 digits.
+      // If we pad it internally or use a standard 6-char policy it might be safer,
+      // but here we follow the UI constraint of 5 digits if possible.
+      // Note: Most Firebase projects enforce 6 chars.
       await createUserWithEmailAndPassword(auth, email, password);
       toast({ title: "PROFILE CREATED", description: "Operative registration successful." });
       router.push('/');
