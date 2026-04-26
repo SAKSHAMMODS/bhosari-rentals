@@ -5,10 +5,10 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { PayPalPlaceholder } from '@/components/PayPalPlaceholder';
-import { ArrowLeft, CheckCircle2, ShieldCheck, Truck } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, ShieldCheck, Truck, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from '@/hooks/use-toast';
+import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 
 interface RentalDetails {
   bikeId: string;
@@ -38,20 +38,20 @@ export default function CheckoutPage() {
     setConfirmationId(`VH-${Math.random().toString(36).substring(2, 11)}`.toUpperCase());
   }, [router]);
 
-  const handlePaymentComplete = () => {
-    setIsProcessing(true);
-    setTimeout(() => {
-      setIsProcessing(false);
-      setIsSuccess(true);
-      sessionStorage.removeItem('pendingRental');
-      toast({
-        title: "PAYMENT AUTHORIZED",
-        description: "Your equipment is being prepared for deployment.",
-      });
-    }, 2000);
+  const handlePaymentSuccess = (details: any) => {
+    setIsSuccess(true);
+    sessionStorage.removeItem('pendingRental');
+    toast({
+      title: "PAYMENT AUTHORIZED",
+      description: `Transaction successful! Equipment locked for ${details.payer.name.given_name}.`,
+    });
   };
 
-  if (!details && !isSuccess) return null;
+  if (!details && !isSuccess) return (
+    <div className="flex items-center justify-center min-h-[60vh]">
+      <Loader2 className="w-8 h-8 animate-spin text-primary" />
+    </div>
+  );
 
   if (isSuccess) {
     return (
@@ -79,6 +79,8 @@ export default function CheckoutPage() {
       </div>
     );
   }
+
+  const finalAmount = (details?.totalPrice || 0) + 500;
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -161,18 +163,54 @@ export default function CheckoutPage() {
               <div className="flex justify-between items-center">
                 <span className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Total Amount Due</span>
                 <span className="text-3xl font-bold glow-primary text-white">
-                  ₹{(details ? details.totalPrice + 500 : 0).toLocaleString()}
+                  ₹{finalAmount.toLocaleString()}
                 </span>
               </div>
             </CardContent>
             <CardFooter className="flex flex-col gap-6">
               <div className="w-full">
                 <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-4 text-center">Select Payment Vector</p>
-                <PayPalPlaceholder 
-                  amount={details ? details.totalPrice + 500 : 0} 
-                  onComplete={handlePaymentComplete}
-                />
+                
+                <PayPalScriptProvider options={{ 
+                  "client-id": process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || "",
+                  currency: "USD" 
+                }}>
+                  <div className="min-h-[150px]">
+                    <PayPalButtons
+                      style={{ layout: "vertical", color: "gold", shape: "rect", label: "paypal" }}
+                      createOrder={(data, actions) => {
+                        return actions.order.create({
+                          intent: "CAPTURE",
+                          purchase_units: [{
+                            amount: {
+                              currency_code: "USD",
+                              value: (finalAmount / 80).toFixed(2), // Simple conversion for sandbox testing
+                            },
+                            description: `7-Day Rental: ${details?.brand} ${details?.model}`
+                          }],
+                        });
+                      }}
+                      onApprove={async (data, actions) => {
+                        if (actions.order) {
+                          const details = await actions.order.capture();
+                          handlePaymentSuccess(details);
+                        }
+                      }}
+                      onError={(err) => {
+                        console.error("PayPal Error:", err);
+                        toast({
+                          variant: "destructive",
+                          title: "PAYMENT ERROR",
+                          description: "The transaction could not be processed. Please verify your vector and try again.",
+                        });
+                      }}
+                    />
+                  </div>
+                </PayPalScriptProvider>
               </div>
+              <p className="text-[10px] text-center text-muted-foreground uppercase tracking-widest">
+                Security Protocol: Encrypted Peer-to-Peer Transfer
+              </p>
             </CardFooter>
           </Card>
         </div>
