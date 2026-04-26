@@ -1,3 +1,4 @@
+
 import type {Metadata} from 'next';
 import './globals.css';
 import { Navbar } from '@/components/Navbar';
@@ -6,7 +7,7 @@ import { FirebaseClientProvider } from '@/firebase';
 
 export const metadata: Metadata = {
   title: 'BHOSARI RENTALS | High-Performance Fleet Hub',
-  description: 'High-performance bike rentals for modern operatives. Standardized fleet and professional service.',
+  description: 'High-performance bike rentals for modern operatives.',
   icons: {
     icon: 'https://firebasestorage.googleapis.com/v0/b/studio-9741197854-fd9d5.firebasestorage.app/o/download%20(1).jpg?alt=media&token=866cc6c8-7b20-4216-b920-73cdb591852e',
   },
