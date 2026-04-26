@@ -8,7 +8,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { DateRange } from 'react-day-picker';
-import { addDays, format } from 'date-fns';
+import { addDays, format, startOfToday } from 'date-fns';
 import { Calendar as CalendarIcon, ShieldCheck, Info, User, Phone, Mail, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useUser } from '@/firebase';
@@ -43,32 +43,38 @@ export default function BookingPage() {
   const bikeId = params.bikeId as string;
   const bike = BIKES.find(b => b.id === bikeId);
 
-  const [date, setDate] = useState<DateRange | undefined>({
-    from: new Date(),
-    to: addDays(new Date(), RENTAL_DAYS - 1),
-  });
+  // Use undefined for initial state to avoid hydration mismatch
+  const [date, setDate] = useState<DateRange | undefined>(undefined);
+  const [hasMounted, setHasMounted] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
-    email: user?.email || '',
+    email: '',
   });
 
   useEffect(() => {
+    setHasMounted(true);
+    const today = startOfToday();
+    setDate({
+      from: today,
+      to: addDays(today, RENTAL_DAYS - 1),
+    });
+    
     if (user?.email) {
       setFormData(prev => ({ ...prev, email: user.email! }));
     }
   }, [user]);
 
   const handleSelect = (range: DateRange | undefined) => {
+    // React-day-picker v9 behavior: 
+    // If the user clicks a day, range.from will be that day.
+    // We immediately force the 7-day block.
     if (range?.from) {
-      const fixedRange = {
+      setDate({
         from: range.from,
         to: addDays(range.from, RENTAL_DAYS - 1),
-      };
-      setDate(fixedRange);
-    } else {
-      setDate(undefined);
+      });
     }
   };
 
@@ -105,6 +111,15 @@ export default function BookingPage() {
     return <div className="container mx-auto py-20 text-center">Equipment not found.</div>;
   }
 
+  // Prevents UI jumping and hydration errors
+  if (!hasMounted) {
+    return (
+      <div className="container mx-auto px-4 py-8 text-center">
+        <p className="text-muted-foreground uppercase tracking-widest text-xs">Initializing Booking Protocol...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
       <Link href="/" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-6 md:mb-8 uppercase tracking-widest text-[10px] md:text-xs font-bold">
@@ -128,13 +143,13 @@ export default function BookingPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col items-center p-0 md:p-6 pb-6">
-              <div className="bg-background rounded-md border border-border p-2 md:p-4 scale-90 sm:scale-100 origin-top">
+              <div className="bg-background rounded-md border border-border p-2 md:p-4 w-full flex justify-center">
                 <Calendar
                   mode="range"
                   selected={date}
                   onSelect={handleSelect}
                   numberOfMonths={1}
-                  disabled={{ before: new Date() }}
+                  disabled={{ before: startOfToday() }}
                   className="rounded-md"
                 />
               </div>
@@ -142,7 +157,7 @@ export default function BookingPage() {
                 <div className="p-4 bg-secondary/30 rounded-sm border border-border text-center">
                   <p className="text-[10px] md:text-xs uppercase tracking-widest font-bold">
                     {date?.from && date?.to ? (
-                      <span className="block sm:inline">
+                      <span className="block">
                         Rental Period: <span className="text-primary">{format(date.from, 'PP')}</span> — <span className="text-primary">{format(date.to, 'PP')}</span>
                       </span>
                     ) : (
