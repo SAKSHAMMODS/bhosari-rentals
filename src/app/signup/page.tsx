@@ -57,7 +57,7 @@ export default function SignupPage() {
         setValidationMessage("Firebase Security Protocol Error: Passcode must be at least 6 characters.");
         setShowValidationPopup(true);
       } else {
-        setValidationMessage(err.message || "Registration parameters rejected by logistics hub.");
+        setValidationMessage(err.message || "Registration parameters rejected by the rental hub.");
         setShowValidationPopup(true);
       }
     } finally {

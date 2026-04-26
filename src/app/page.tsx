@@ -10,9 +10,9 @@ const BIKES = [
     model: 'Classic 350',
     type: 'Cruiser',
     price: 1200,
-    description: PlaceHolderImages[0].description,
-    imageUrl: PlaceHolderImages[0].imageUrl,
-    imageHint: PlaceHolderImages[0].imageHint
+    description: "Royal Enfield Classic 350 - Timeless design meets modern engineering. Ideal for city cruising and relaxed long-distance riding.",
+    imageUrl: "https://firebasestorage.googleapis.com/v0/b/studio-9741197854-fd9d5.firebasestorage.app/o/download.webp?alt=media&token=7b4ca477-2d86-442d-a097-0f03a70b5124",
+    imageHint: "Classic Motorcycle"
   },
   {
     id: 'hayabusa',
@@ -20,9 +20,9 @@ const BIKES = [
     model: 'Hayabusa',
     type: 'Superbike',
     price: 8500,
-    description: PlaceHolderImages[1].description,
-    imageUrl: PlaceHolderImages[1].imageUrl,
-    imageHint: PlaceHolderImages[1].imageHint
+    description: "Suzuki Hayabusa - The ultimate sportbike. Legendary aerodynamic performance and unmatched power for rapid transport.",
+    imageUrl: "https://firebasestorage.googleapis.com/v0/b/studio-9741197854-fd9d5.firebasestorage.app/o/download.jpg?alt=media&token=ac917ed7-b87c-4b5c-9884-a031a35199d1",
+    imageHint: "Suzuki Hayabusa"
   },
   {
     id: 'himalayan',
@@ -30,9 +30,9 @@ const BIKES = [
     model: 'Himalayan',
     type: 'Adventure',
     price: 1800,
-    description: PlaceHolderImages[2].description,
-    imageUrl: PlaceHolderImages[2].imageUrl,
-    imageHint: PlaceHolderImages[2].imageHint
+    description: "Royal Enfield Himalayan - Built for all roads, and no roads. Specialized for rugged terrain and adventure-focused exploration.",
+    imageUrl: "https://firebasestorage.googleapis.com/v0/b/studio-9741197854-fd9d5.firebasestorage.app/o/download%20(1).jpg?alt=media&token=866cc6c8-7b20-4216-b920-73cdb591852e",
+    imageHint: "Adventure Motorcycle"
   }
 ];
 
@@ -93,20 +93,6 @@ export default function Home() {
           {BIKES.map((bike) => (
             <BikeCard key={bike.id} bike={bike} />
           ))}
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="container mx-auto px-4 mt-32">
-        <div className="bg-primary/5 border border-primary/20 rounded-sm p-12 text-center relative overflow-hidden">
-          <div className="absolute bottom-0 right-0 w-64 h-64 bg-primary/10 blur-[80px] -z-10" />
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 tracking-tighter uppercase">READY FOR THE LONG HAUL?</h2>
-          <p className="text-muted-foreground mb-8 max-w-xl mx-auto uppercase tracking-widest text-xs">
-            Join the elite circle of riders who trust Velohub for weekly motorcycle rentals.
-          </p>
-          <Button size="lg" className="bg-primary hover:bg-primary/90 text-white glow-primary uppercase tracking-[0.2em] font-bold px-12 h-14">
-            Register Profile
-          </Button>
         </div>
       </section>
     </div>
