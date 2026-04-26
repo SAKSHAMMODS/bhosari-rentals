@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from 'react';
@@ -11,6 +12,8 @@ import Script from 'next/script';
 import { useUser, useFirestore, setDocumentNonBlocking } from '@/firebase';
 import { doc, serverTimestamp } from 'firebase/firestore';
 import { format } from 'date-fns';
+import { PayPalPlaceholder } from '@/components/PayPalPlaceholder';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface RentalDetails {
   bikeId: string;
@@ -61,6 +64,34 @@ export default function CheckoutPage() {
     }
   }, [router, isSuccess]);
 
+  const saveBookingToFirestore = (paymentId: string) => {
+    if (!details || !user || !db) return;
+
+    const bookingId = confirmationId;
+    const bookingRef = doc(db, 'users', user.uid, 'bookings', bookingId);
+    
+    setDocumentNonBlocking(bookingRef, {
+      id: bookingId,
+      bikeId: details.bikeId,
+      userId: user.uid,
+      startDate: details.startDate,
+      endDate: details.endDate,
+      totalPrice: (details.totalPrice || 0) + 500,
+      bookingDate: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+      status: 'confirmed',
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+      payment_id: paymentId
+    }, { merge: true });
+
+    setIsSuccess(true);
+    sessionStorage.removeItem('pendingRental');
+    toast({
+      title: "BOOKING CONFIRMED",
+      description: "Payment captured successfully.",
+    });
+  };
+
   const handleRazorpayPayment = () => {
     if (!details || !user || !db) return;
 
@@ -77,30 +108,7 @@ export default function CheckoutPage() {
       description: `${details.brand} ${details.model} - ${details.days} Day Rental`,
       image: "https://firebasestorage.googleapis.com/v0/b/studio-9741197854-fd9d5.firebasestorage.app/o/download.webp?alt=media&token=7b4ca477-2d86-442d-a097-0f03a70b5124",
       handler: function (response: any) {
-        // Save booking to Firestore
-        const bookingId = confirmationId;
-        const bookingRef = doc(db, 'users', user.uid, 'bookings', bookingId);
-        
-        setDocumentNonBlocking(bookingRef, {
-          id: bookingId,
-          bikeId: details.bikeId,
-          userId: user.uid,
-          startDate: details.startDate,
-          endDate: details.endDate,
-          totalPrice: finalAmountINR,
-          bookingDate: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
-          status: 'confirmed',
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp(),
-          razorpay_payment_id: response.razorpay_payment_id
-        }, { merge: true });
-
-        setIsSuccess(true);
-        sessionStorage.removeItem('pendingRental');
-        toast({
-          title: "BOOKING CONFIRMED",
-          description: "Payment captured. ID: " + response.razorpay_payment_id,
-        });
+        saveBookingToFirestore(response.razorpay_payment_id);
       },
       prefill: {
         name: details.customer.name,
@@ -127,6 +135,10 @@ export default function CheckoutPage() {
       });
     });
     rzp1.open();
+  };
+
+  const handlePayPalSuccess = () => {
+    saveBookingToFirestore(`PP-${Math.random().toString(36).substring(2, 11).toUpperCase()}`);
   };
 
   if (isSuccess) {
@@ -266,20 +278,36 @@ export default function CheckoutPage() {
             </CardContent>
             <CardFooter className="flex flex-col gap-6 pb-8">
               <div className="w-full">
-                <p className="text-[9px] md:text-[10px] text-muted-foreground uppercase tracking-widest mb-4 text-center">Authorized Gateway Only</p>
+                <p className="text-[9px] md:text-[10px] text-muted-foreground uppercase tracking-widest mb-4 text-center">Authorized Gateway Selection</p>
                 
-                <Button 
-                  onClick={handleRazorpayPayment}
-                  disabled={isProcessing}
-                  className="w-full bg-primary hover:bg-primary/90 text-white uppercase tracking-[0.2em] font-bold py-8 text-[12px] md:text-sm flex items-center justify-center gap-3 glow-primary"
-                >
-                  {isProcessing ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : (
-                    <CreditCard className="w-5 h-5" />
-                  )}
-                  {isProcessing ? "PROCESSING..." : "PAY WITH RAZORPAY"}
-                </Button>
+                <Tabs defaultValue="razorpay" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2 bg-secondary/50 mb-6">
+                    <TabsTrigger value="razorpay" className="uppercase text-[10px] tracking-widest">Razorpay</TabsTrigger>
+                    <TabsTrigger value="paypal" className="uppercase text-[10px] tracking-widest">PayPal</TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="razorpay">
+                    <Button 
+                      onClick={handleRazorpayPayment}
+                      disabled={isProcessing}
+                      className="w-full bg-primary hover:bg-primary/90 text-white uppercase tracking-[0.2em] font-bold py-8 text-[12px] md:text-sm flex items-center justify-center gap-3 glow-primary"
+                    >
+                      {isProcessing ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      ) : (
+                        <CreditCard className="w-5 h-5" />
+                      )}
+                      {isProcessing ? "PROCESSING..." : "PAY WITH RAZORPAY"}
+                    </Button>
+                  </TabsContent>
+                  
+                  <TabsContent value="paypal">
+                    <PayPalPlaceholder 
+                      amount={finalAmountINR} 
+                      onComplete={handlePayPalSuccess} 
+                    />
+                  </TabsContent>
+                </Tabs>
               </div>
               <p className="text-[8px] md:text-[9px] text-center text-muted-foreground uppercase tracking-widest">
                 Protocol: Secure P2P Encrypted Transfer Active
