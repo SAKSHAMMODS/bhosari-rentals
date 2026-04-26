@@ -4,11 +4,9 @@ import { useState, useMemo, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Calendar } from '@/components/ui/calendar';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { DateRange } from 'react-day-picker';
-import { addDays, format, startOfToday, differenceInDays } from 'date-fns';
+import { format, startOfToday, differenceInDays, parseISO, addDays } from 'date-fns';
 import { Calendar as CalendarIcon, ShieldCheck, Info, User, Phone, Mail, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useUser } from '@/firebase';
@@ -21,7 +19,8 @@ export default function BookingPage() {
   const bikeId = params.bikeId as string;
   const bike = BIKES.find(b => b.id === bikeId);
 
-  const [date, setDate] = useState<DateRange | undefined>(undefined);
+  const [startDate, setStartDate] = useState<string>(format(startOfToday(), 'yyyy-MM-dd'));
+  const [endDate, setEndDate] = useState<string>(format(addDays(startOfToday(), 1), 'yyyy-MM-dd'));
   const [hasMounted, setHasMounted] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -32,29 +31,20 @@ export default function BookingPage() {
 
   useEffect(() => {
     setHasMounted(true);
-    const today = startOfToday();
-    // Default to a 1-day selection initially
-    setDate({
-      from: today,
-      to: addDays(today, 1),
-    });
-    
     if (user?.email) {
       setFormData(prev => ({ ...prev, email: user.email! }));
     }
   }, [user]);
 
-  const handleSelect = (range: DateRange | undefined) => {
-    setDate(range);
-  };
-
   const rentalDays = useMemo(() => {
-    if (date?.from && date?.to) {
-      const days = differenceInDays(date.to, date.from);
+    if (startDate && endDate) {
+      const start = parseISO(startDate);
+      const end = parseISO(endDate);
+      const days = differenceInDays(end, start);
       return days > 0 ? days : 1;
     }
     return 1;
-  }, [date]);
+  }, [startDate, endDate]);
 
   const totalPrice = useMemo(() => {
     return bike ? rentalDays * bike.price : 0;
@@ -62,7 +52,7 @@ export default function BookingPage() {
 
   const handleProceedToPayment = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!date?.from || !date?.to || !bike) return;
+    if (!startDate || !endDate || !bike) return;
 
     if (!user) {
       router.push('/login');
@@ -74,8 +64,8 @@ export default function BookingPage() {
       brand: bike.brand,
       model: bike.model,
       pricePerDay: bike.price,
-      startDate: format(date.from, 'yyyy-MM-dd'),
-      endDate: format(date.to, 'yyyy-MM-dd'),
+      startDate,
+      endDate,
       totalPrice,
       days: rentalDays,
       customer: formData
@@ -110,39 +100,43 @@ export default function BookingPage() {
             <p className="text-[10px] md:text-xs text-muted-foreground uppercase tracking-[0.3em]">Configure Your Rental Schedule</p>
           </section>
 
-          <Card className="bg-card border-border overflow-hidden">
+          <Card className="bg-card border-border">
             <CardHeader>
               <CardTitle className="text-xs md:text-sm tracking-widest uppercase flex items-center gap-2">
-                <CalendarIcon className="w-4 h-4 text-primary" /> 1. Select Dates
+                <CalendarIcon className="w-4 h-4 text-primary" /> 1. Operational Dates
               </CardTitle>
               <CardDescription className="text-[9px] md:text-[10px] uppercase tracking-widest">
-                Choose your start and end dates. Pricing is calculated per day.
+                Enter your deployment and return dates.
               </CardDescription>
             </CardHeader>
-            <CardContent className="flex flex-col items-center p-0 md:p-6 pb-6">
-              <div className="bg-background rounded-md border border-border p-2 md:p-4 w-full flex justify-center">
-                <Calendar
-                  mode="range"
-                  selected={date}
-                  onSelect={handleSelect}
-                  numberOfMonths={1}
-                  disabled={{ before: startOfToday() }}
-                  className="rounded-md"
-                />
-              </div>
-              <div className="mt-4 w-full px-4 md:px-0">
-                <div className="p-4 bg-secondary/30 rounded-sm border border-border text-center">
-                  <p className="text-[10px] md:text-xs uppercase tracking-widest font-bold">
-                    {date?.from && date?.to ? (
-                      <span className="block">
-                        Rental Period: <span className="text-primary">{format(date.from, 'PP')}</span> — <span className="text-primary">{format(date.to, 'PP')}</span>
-                        <span className="block mt-1 text-[8px] text-muted-foreground">Total Duration: {rentalDays} {rentalDays === 1 ? 'Day' : 'Days'}</span>
-                      </span>
-                    ) : (
-                      "Select a date range"
-                    )}
-                  </p>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label className="text-[9px] md:text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Start Date</Label>
+                  <Input 
+                    type="date" 
+                    min={format(startOfToday(), 'yyyy-MM-dd')}
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="bg-background border-border text-xs uppercase"
+                  />
                 </div>
+                <div className="space-y-2">
+                  <Label className="text-[9px] md:text-[10px] uppercase tracking-widest font-bold text-muted-foreground">End Date</Label>
+                  <Input 
+                    type="date" 
+                    min={startDate || format(startOfToday(), 'yyyy-MM-dd')}
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="bg-background border-border text-xs uppercase"
+                  />
+                </div>
+              </div>
+
+              <div className="p-4 bg-secondary/30 rounded-sm border border-border text-center">
+                <p className="text-[10px] md:text-xs uppercase tracking-widest font-bold">
+                  Duration: <span className="text-primary">{rentalDays} {rentalDays === 1 ? 'Day' : 'Days'}</span>
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -153,7 +147,7 @@ export default function BookingPage() {
                 <User className="w-4 h-4 text-primary" /> 2. Booking Details
               </CardTitle>
               <CardDescription className="text-[9px] md:text-[10px] uppercase tracking-widest">
-                Enter operative identification for the rental documentation.
+                Enter identification for the rental documentation.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -248,7 +242,7 @@ export default function BookingPage() {
               <Button 
                 type="submit" 
                 form="booking-form"
-                disabled={!date?.from || !date?.to}
+                disabled={!startDate || !endDate}
                 className="w-full bg-primary hover:bg-primary/90 text-white glow-primary uppercase tracking-[0.2em] font-bold py-6 md:py-8 text-[12px] md:text-sm"
               >
                 Proceed to Checkout

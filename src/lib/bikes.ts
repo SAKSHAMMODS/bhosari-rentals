@@ -15,7 +15,7 @@ export const BIKES: Bike[] = [
     brand: 'Royal Enfield',
     model: 'Classic 350',
     type: 'Cruiser',
-    price: 1200,
+    price: 150,
     description: "Royal Enfield Classic 350 - Timeless design meets modern engineering. Ideal for city cruising and relaxed long-distance riding.",
     imageUrl: "https://firebasestorage.googleapis.com/v0/b/studio-9741197854-fd9d5.firebasestorage.app/o/download.webp?alt=media&token=7b4ca477-2d86-442d-a097-0f03a70b5124",
     imageHint: "Classic Motorcycle"
@@ -25,7 +25,7 @@ export const BIKES: Bike[] = [
     brand: 'Suzuki',
     model: 'Hayabusa',
     type: 'Superbike',
-    price: 2000,
+    price: 200,
     description: "Suzuki Hayabusa - The ultimate sportbike. Legendary aerodynamic performance and unmatched power for rapid transport.",
     imageUrl: "https://firebasestorage.googleapis.com/v0/b/studio-9741197854-fd9d5.firebasestorage.app/o/download.jpg?alt=media&token=ac917ed7-b87c-4b5c-9884-a031a35199d1",
     imageHint: "Suzuki Hayabusa"
@@ -35,7 +35,7 @@ export const BIKES: Bike[] = [
     brand: 'Royal Enfield',
     model: 'Himalayan',
     type: 'Adventure',
-    price: 1800,
+    price: 180,
     description: "Royal Enfield Himalayan - Built for all roads, and no roads. Specialized for rugged terrain and adventure-focused exploration.",
     imageUrl: "https://firebasestorage.googleapis.com/v0/b/studio-9741197854-fd9d5.firebasestorage.app/o/download%20(1).jpg?alt=media&token=866cc6c8-7b20-4216-b920-73cdb591852e",
     imageHint: "Adventure Motorcycle"
