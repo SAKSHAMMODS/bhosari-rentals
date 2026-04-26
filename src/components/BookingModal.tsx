@@ -1,15 +1,13 @@
-
 "use client";
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { DateRange } from 'react-day-picker';
-import { addDays, differenceInDays, format, isSameDay } from 'date-fns';
+import { addDays, format } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { Calendar as CalendarIcon, ShieldCheck, Info } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
 
 interface BikeProps {
   id: string;
@@ -28,7 +26,6 @@ export function BookingModal({ bike, isOpen, onClose }: { bike: BikeProps; isOpe
     to: addDays(new Date(), RENTAL_DAYS - 1),
   });
 
-  // Automatically adjust the end date to ensure exactly 7 days when "from" is selected
   const handleSelect = (range: DateRange | undefined) => {
     if (range?.from) {
       const fixedRange = {
@@ -76,10 +73,10 @@ export function BookingModal({ bike, isOpen, onClose }: { bike: BikeProps; isOpe
         <div className="py-4 flex flex-col items-center">
           <div className="flex items-center gap-2 mb-2 text-accent">
             <CalendarIcon className="w-4 h-4" />
-            <span className="text-xs font-bold uppercase tracking-widest">Select Deployment Start</span>
+            <span className="text-xs font-bold uppercase tracking-widest">Select Start Date</span>
           </div>
           <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-4 flex items-center gap-1">
-            <Info className="w-3 h-3" /> Fixed 7-day duration applies
+            <span className="bg-primary/20 p-0.5 rounded-full"><Info className="w-3 h-3 text-primary" /></span> Fixed 7-day duration applies
           </p>
           <Calendar
             initialFocus
@@ -103,7 +100,7 @@ export function BookingModal({ bike, isOpen, onClose }: { bike: BikeProps; isOpe
           </div>
           <div className="h-px bg-border w-full" />
           <div className="flex justify-between items-center">
-            <span className="text-[10px] text-primary uppercase tracking-[0.2em] font-bold">Total Hub Cost</span>
+            <span className="text-[10px] text-primary uppercase tracking-[0.2em] font-bold">Total Rental Cost</span>
             <span className="text-xl font-bold glow-primary">₹{totalPrice}</span>
           </div>
         </div>
@@ -117,7 +114,7 @@ export function BookingModal({ bike, isOpen, onClose }: { bike: BikeProps; isOpe
             Confirm Reservation
           </Button>
           <p className="text-[10px] text-center text-muted-foreground uppercase tracking-widest mt-2 flex items-center justify-center gap-1">
-            <ShieldCheck className="w-3 h-3" /> Secure Hub Authorization
+            <ShieldCheck className="w-3 h-3" /> Secure Reservation Protocol
           </p>
         </DialogFooter>
       </DialogContent>

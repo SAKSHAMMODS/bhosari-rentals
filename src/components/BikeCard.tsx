@@ -1,11 +1,10 @@
-
 "use client";
 
 import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Bike, Gauge, Activity, ArrowRight, Clock } from 'lucide-react';
+import { Activity, ArrowRight, Clock } from 'lucide-react';
 import { BookingModal } from '@/components/BookingModal';
 import { useState } from 'react';
 
@@ -71,7 +70,7 @@ export function BikeCard({ bike }: { bike: BikeProps }) {
           onClick={() => setIsModalOpen(true)}
           className="w-full bg-secondary hover:bg-primary hover:text-white transition-all duration-300 uppercase tracking-[0.2em] text-xs font-bold border-border"
         >
-          Check Logistics
+          View Details
           <ArrowRight className="w-4 h-4 ml-2" />
         </Button>
       </CardFooter>

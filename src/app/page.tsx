@@ -1,4 +1,3 @@
-
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { BikeCard } from '@/components/BikeCard';
 import { Button } from '@/components/ui/button';
@@ -47,8 +46,8 @@ export default function Home() {
           7-DAY RENTAL <br /> <span className="text-primary">SPECIALISTS</span>
         </h1>
         <p className="max-w-2xl mx-auto text-muted-foreground text-lg mb-10 leading-relaxed uppercase tracking-widest text-sm">
-          Fixed 7-day rental blocks for premium motorcycle logistics. 
-          Standardized deployment. Professional fleet only.
+          Fixed 7-day rental blocks for premium motorcycle experiences. 
+          Standardized fleet. Professional service only.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button size="lg" className="bg-primary hover:bg-primary/90 text-white glow-primary uppercase tracking-[0.2em] font-bold px-10 h-14">
@@ -103,7 +102,7 @@ export default function Home() {
           <div className="absolute bottom-0 right-0 w-64 h-64 bg-primary/10 blur-[80px] -z-10" />
           <h2 className="text-3xl md:text-4xl font-bold mb-6 tracking-tighter uppercase">READY FOR THE LONG HAUL?</h2>
           <p className="text-muted-foreground mb-8 max-w-xl mx-auto uppercase tracking-widest text-xs">
-            Join the elite circle of riders who trust Velohub for weekly motorcycle logistics.
+            Join the elite circle of riders who trust Velohub for weekly motorcycle rentals.
           </p>
           <Button size="lg" className="bg-primary hover:bg-primary/90 text-white glow-primary uppercase tracking-[0.2em] font-bold px-12 h-14">
             Register Profile

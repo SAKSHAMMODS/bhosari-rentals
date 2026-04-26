@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from 'react';
@@ -24,7 +23,6 @@ interface RentalDetails {
 export default function CheckoutPage() {
   const router = useRouter();
   const [details, setDetails] = useState<RentalDetails | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [confirmationId, setConfirmationId] = useState<string | null>(null);
 
@@ -38,12 +36,12 @@ export default function CheckoutPage() {
     setConfirmationId(`VH-${Math.random().toString(36).substring(2, 11)}`.toUpperCase());
   }, [router]);
 
-  const handlePaymentSuccess = (details: any) => {
+  const handlePaymentSuccess = (paymentDetails: any) => {
     setIsSuccess(true);
     sessionStorage.removeItem('pendingRental');
     toast({
       title: "PAYMENT AUTHORIZED",
-      description: `Transaction successful! Equipment locked for ${details.payer.name.given_name}.`,
+      description: `Transaction successful! Equipment locked for ${paymentDetails.payer.name.given_name}.`,
     });
   };
 
@@ -62,9 +60,9 @@ export default function CheckoutPage() {
               <CheckCircle2 className="w-12 h-12 text-primary glow-primary" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold mb-4 tracking-tighter">ORDER CONFIRMED</h1>
+          <h1 className="text-3xl font-bold mb-4 tracking-tighter">BOOKING CONFIRMED</h1>
           <p className="text-muted-foreground uppercase tracking-widest text-xs mb-8 leading-relaxed">
-            Your rental configuration has been locked. Check your email for logistics documentation and pickup instructions.
+            Your rental configuration has been locked. Check your email for documentation and pickup instructions.
           </p>
           <div className="bg-secondary/50 p-6 rounded-sm border border-border mb-8 text-left">
             <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">Confirmation ID</p>
@@ -72,7 +70,7 @@ export default function CheckoutPage() {
           </div>
           <Link href="/">
             <Button className="w-full bg-primary hover:bg-primary/90 text-white uppercase tracking-[0.2em] font-bold h-12">
-              Return to Logistics Hub
+              Return to Fleet
             </Button>
           </Link>
         </Card>
@@ -80,7 +78,8 @@ export default function CheckoutPage() {
     );
   }
 
-  const finalAmount = (details?.totalPrice || 0) + 500;
+  const finalAmountINR = (details?.totalPrice || 0) + 500;
+  const finalAmountUSD = (finalAmountINR / 80).toFixed(2); // Simple conversion for Sandbox
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -111,7 +110,7 @@ export default function CheckoutPage() {
                       <span className="text-muted-foreground">Start:</span> {details?.startDate}
                     </div>
                     <div className="bg-secondary/50 px-3 py-1.5 rounded-sm border border-border">
-                      <span className="text-muted-foreground">End:</span> {details?.endDate}
+                      <span className="text-muted-foreground">End:</span> {details={details?.endDate}}
                     </div>
                     <div className="bg-secondary/50 px-3 py-1.5 rounded-sm border border-border">
                       {details?.days} Day Block
@@ -123,7 +122,7 @@ export default function CheckoutPage() {
 
             <section>
               <h2 className="text-xs font-bold uppercase tracking-[0.3em] text-primary mb-4 flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4" /> Logistics Protections
+                <ShieldCheck className="w-4 h-4" /> Rental Protections
               </h2>
               <div className="space-y-3">
                 <div className="flex items-center gap-4 p-4 rounded-sm border border-border bg-card/30">
@@ -133,7 +132,7 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex items-center gap-4 p-4 rounded-sm border border-border bg-card/30">
                   <div className="w-2 h-2 rounded-full bg-accent glow-accent" />
-                  <p className="text-xs uppercase tracking-widest flex-1">24/7 Roadside Extraction</p>
+                  <p className="text-xs uppercase tracking-widest flex-1">24/7 Roadside Assistance</p>
                   <p className="text-xs font-bold text-accent">INCLUDED</p>
                 </div>
               </div>
@@ -152,7 +151,7 @@ export default function CheckoutPage() {
                 <span>₹{details?.totalPrice.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-sm uppercase tracking-widest">
-                <span className="text-muted-foreground">Logistics Fee</span>
+                <span className="text-muted-foreground">Service Fee</span>
                 <span>₹500.00</span>
               </div>
               <div className="flex justify-between text-sm uppercase tracking-widest">
@@ -163,13 +162,13 @@ export default function CheckoutPage() {
               <div className="flex justify-between items-center">
                 <span className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Total Amount Due</span>
                 <span className="text-3xl font-bold glow-primary text-white">
-                  ₹{finalAmount.toLocaleString()}
+                  ₹{finalAmountINR.toLocaleString()}
                 </span>
               </div>
             </CardContent>
             <CardFooter className="flex flex-col gap-6">
               <div className="w-full">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-4 text-center">Select Payment Vector</p>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-4 text-center">Select Payment Method</p>
                 
                 <PayPalScriptProvider options={{ 
                   "client-id": process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || "",
@@ -184,7 +183,7 @@ export default function CheckoutPage() {
                           purchase_units: [{
                             amount: {
                               currency_code: "USD",
-                              value: (finalAmount / 80).toFixed(2), // Simple conversion for sandbox testing
+                              value: finalAmountUSD,
                             },
                             description: `7-Day Rental: ${details?.brand} ${details?.model}`
                           }],
@@ -192,8 +191,8 @@ export default function CheckoutPage() {
                       }}
                       onApprove={async (data, actions) => {
                         if (actions.order) {
-                          const details = await actions.order.capture();
-                          handlePaymentSuccess(details);
+                          const paymentDetails = await actions.order.capture();
+                          handlePaymentSuccess(paymentDetails);
                         }
                       }}
                       onError={(err) => {
@@ -201,7 +200,7 @@ export default function CheckoutPage() {
                         toast({
                           variant: "destructive",
                           title: "PAYMENT ERROR",
-                          description: "The transaction could not be processed. Please verify your vector and try again.",
+                          description: "The transaction could not be processed. Please try again.",
                         });
                       }}
                     />
