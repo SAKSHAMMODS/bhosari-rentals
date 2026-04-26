@@ -106,61 +106,67 @@ export default function BookingPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-12">
-      <Link href="/" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-8 uppercase tracking-widest text-xs font-bold">
+    <div className="container mx-auto px-4 py-8 md:py-12">
+      <Link href="/" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-6 md:mb-8 uppercase tracking-widest text-[10px] md:text-xs font-bold">
         <ArrowLeft className="w-4 h-4" /> Back to Fleet
       </Link>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-        <div className="lg:col-span-7 space-y-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 items-start">
+        <div className="lg:col-span-7 space-y-6 md:space-y-8">
           <section>
-            <h1 className="text-4xl font-bold tracking-tighter mb-2 uppercase">{bike.brand} {bike.model}</h1>
-            <p className="text-xs text-muted-foreground uppercase tracking-[0.3em]">Configure Your 7-Day Rental Block</p>
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tighter mb-2 uppercase">{bike.brand} {bike.model}</h1>
+            <p className="text-[10px] md:text-xs text-muted-foreground uppercase tracking-[0.3em]">Configure Your 7-Day Rental Block</p>
           </section>
 
-          <Card className="bg-card border-border">
+          <Card className="bg-card border-border overflow-hidden">
             <CardHeader>
-              <CardTitle className="text-sm tracking-widest uppercase flex items-center gap-2">
+              <CardTitle className="text-xs md:text-sm tracking-widest uppercase flex items-center gap-2">
                 <CalendarIcon className="w-4 h-4 text-primary" /> 1. Select Start Date
               </CardTitle>
-              <CardDescription className="text-[10px] uppercase tracking-widest">
+              <CardDescription className="text-[9px] md:text-[10px] uppercase tracking-widest">
                 Choose the day your rental begins. Duration is fixed at 7 days.
               </CardDescription>
             </CardHeader>
-            <CardContent className="flex flex-col items-center">
-              <Calendar
-                mode="range"
-                selected={date}
-                onSelect={handleSelect}
-                numberOfMonths={1}
-                disabled={{ before: new Date() }}
-                className="rounded-md border border-border bg-background"
-              />
-              <div className="mt-4 w-full p-4 bg-secondary/30 rounded-sm border border-border text-center">
-                <p className="text-xs uppercase tracking-widest font-bold">
-                  {date?.from && date?.to ? (
-                    <>Rental Period: {format(date.from, 'PPP')} — {format(date.to, 'PPP')}</>
-                  ) : (
-                    "Select a start date"
-                  )}
-                </p>
+            <CardContent className="flex flex-col items-center p-0 md:p-6 pb-6">
+              <div className="bg-background rounded-md border border-border p-2 md:p-4 scale-90 sm:scale-100 origin-top">
+                <Calendar
+                  mode="range"
+                  selected={date}
+                  onSelect={handleSelect}
+                  numberOfMonths={1}
+                  disabled={{ before: new Date() }}
+                  className="rounded-md"
+                />
+              </div>
+              <div className="mt-4 w-full px-4 md:px-0">
+                <div className="p-4 bg-secondary/30 rounded-sm border border-border text-center">
+                  <p className="text-[10px] md:text-xs uppercase tracking-widest font-bold">
+                    {date?.from && date?.to ? (
+                      <span className="block sm:inline">
+                        Rental Period: <span className="text-primary">{format(date.from, 'PP')}</span> — <span className="text-primary">{format(date.to, 'PP')}</span>
+                      </span>
+                    ) : (
+                      "Select a start date"
+                    )}
+                  </p>
+                </div>
               </div>
             </CardContent>
           </Card>
 
           <Card className="bg-card border-border">
             <CardHeader>
-              <CardTitle className="text-sm tracking-widest uppercase flex items-center gap-2">
+              <CardTitle className="text-xs md:text-sm tracking-widest uppercase flex items-center gap-2">
                 <User className="w-4 h-4 text-primary" /> 2. Booking Details
               </CardTitle>
-              <CardDescription className="text-[10px] uppercase tracking-widest">
+              <CardDescription className="text-[9px] md:text-[10px] uppercase tracking-widest">
                 Enter operative identification for the rental documentation.
               </CardDescription>
             </CardHeader>
             <CardContent>
               <form id="booking-form" onSubmit={handleProceedToPayment} className="space-y-4">
                 <div className="space-y-2">
-                  <Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Full Name</Label>
+                  <Label className="text-[9px] md:text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Full Name</Label>
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input 
@@ -174,7 +180,7 @@ export default function BookingPage() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Phone Number</Label>
+                    <Label className="text-[9px] md:text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Phone Number</Label>
                     <div className="relative">
                       <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <Input 
@@ -188,7 +194,7 @@ export default function BookingPage() {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Email Identifier</Label>
+                    <Label className="text-[9px] md:text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Email Identifier</Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <Input 
@@ -208,18 +214,18 @@ export default function BookingPage() {
           </Card>
         </div>
 
-        <div className="lg:col-span-5 sticky top-24">
+        <div className="lg:col-span-5 lg:sticky lg:top-24">
           <Card className="bg-card border-border shadow-2xl">
             <CardHeader>
-              <CardTitle className="text-xl tracking-tight uppercase">Rental Summary</CardTitle>
+              <CardTitle className="text-lg md:text-xl tracking-tight uppercase">Rental Summary</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="space-y-2">
-                <div className="flex justify-between text-xs uppercase tracking-widest">
+              <div className="space-y-3">
+                <div className="flex justify-between text-[10px] md:text-xs uppercase tracking-widest">
                   <span className="text-muted-foreground">Daily Rate</span>
                   <span className="font-bold">₹{bike.price}</span>
                 </div>
-                <div className="flex justify-between text-xs uppercase tracking-widest">
+                <div className="flex justify-between text-[10px] md:text-xs uppercase tracking-widest">
                   <span className="text-muted-foreground">Block Duration</span>
                   <span className="font-bold">{RENTAL_DAYS} Days</span>
                 </div>
@@ -229,33 +235,33 @@ export default function BookingPage() {
 
               <div className="flex justify-between items-end">
                 <div>
-                  <p className="text-[10px] text-primary uppercase tracking-[0.2em] font-bold">Total Due</p>
-                  <p className="text-3xl font-bold tracking-tighter text-white glow-primary">₹{totalPrice.toLocaleString()}</p>
+                  <p className="text-[9px] md:text-[10px] text-primary uppercase tracking-[0.2em] font-bold">Total Due</p>
+                  <p className="text-2xl md:text-3xl font-bold tracking-tighter text-white glow-primary">₹{totalPrice.toLocaleString()}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Security Deposit</p>
-                  <p className="text-xs font-bold text-accent uppercase">Refundable</p>
+                  <p className="text-[9px] md:text-[10px] text-muted-foreground uppercase tracking-widest">Deposit</p>
+                  <p className="text-[10px] font-bold text-accent uppercase">Refundable</p>
                 </div>
               </div>
 
               <div className="space-y-3 pt-4">
                 <div className="flex items-center gap-3 p-3 bg-secondary/50 rounded-sm border border-border">
                   <ShieldCheck className="w-4 h-4 text-accent" />
-                  <span className="text-[10px] uppercase tracking-widest font-bold">Comprehensive Insurance Included</span>
+                  <span className="text-[9px] md:text-[10px] uppercase tracking-widest font-bold">Comprehensive Insurance Included</span>
                 </div>
               </div>
             </CardContent>
-            <CardContent className="pt-0">
+            <CardContent className="pt-0 pb-6 md:pb-8">
               <Button 
                 type="submit" 
                 form="booking-form"
                 disabled={!date?.from}
-                className="w-full bg-primary hover:bg-primary/90 text-white glow-primary uppercase tracking-[0.2em] font-bold py-8 text-sm"
+                className="w-full bg-primary hover:bg-primary/90 text-white glow-primary uppercase tracking-[0.2em] font-bold py-6 md:py-8 text-[12px] md:text-sm"
               >
                 Proceed to Checkout
               </Button>
-              <p className="text-[10px] text-center text-muted-foreground uppercase tracking-widest mt-4 flex items-center justify-center gap-1">
-                <Info className="w-3 h-3" /> Encrypted Booking Protocol
+              <p className="text-[9px] md:text-[10px] text-center text-muted-foreground uppercase tracking-widest mt-4 flex items-center justify-center gap-1">
+                <Info className="w-3 h-3" /> Encrypted Protocol Active
               </p>
             </CardContent>
           </Card>
