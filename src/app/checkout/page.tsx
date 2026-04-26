@@ -10,6 +10,7 @@ import { toast } from '@/hooks/use-toast';
 import Script from 'next/script';
 import { useUser, useFirestore, setDocumentNonBlocking } from '@/firebase';
 import { doc, serverTimestamp } from 'firebase/firestore';
+import { format } from 'date-fns';
 
 interface RentalDetails {
   bikeId: string;
@@ -65,14 +66,15 @@ export default function CheckoutPage() {
 
     setIsProcessing(true);
 
-    const finalAmountINR = (details.totalPrice || 0) + 500;
+    const serviceFee = 500;
+    const finalAmountINR = (details.totalPrice || 0) + serviceFee;
     
     const options = {
       key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_SiB4ZzRprgn4b8",
       amount: finalAmountINR * 100,
       currency: "INR",
       name: "Velohub Rentals",
-      description: `${details.brand} ${details.model} - 7 Day Rental`,
+      description: `${details.brand} ${details.model} - ${details.days} Day Rental`,
       image: "https://firebasestorage.googleapis.com/v0/b/studio-9741197854-fd9d5.firebasestorage.app/o/download.webp?alt=media&token=7b4ca477-2d86-442d-a097-0f03a70b5124",
       handler: function (response: any) {
         // Save booking to Firestore
@@ -172,7 +174,8 @@ export default function CheckoutPage() {
     </div>
   );
 
-  const finalAmountINR = (details.totalPrice || 0) + 500;
+  const serviceFee = 500;
+  const finalAmountINR = (details.totalPrice || 0) + serviceFee;
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
@@ -199,7 +202,7 @@ export default function CheckoutPage() {
                   </div>
                   <div className="text-left sm:text-right w-full sm:w-auto p-3 sm:p-0 bg-secondary/30 sm:bg-transparent rounded-sm border border-border sm:border-0">
                     <p className="text-xs font-bold uppercase tracking-widest text-accent">₹{details.pricePerDay} / day</p>
-                    <p className="text-[9px] md:text-[10px] text-muted-foreground uppercase tracking-widest mt-1">7-Day Rental Block</p>
+                    <p className="text-[9px] md:text-[10px] text-muted-foreground uppercase tracking-widest mt-1">{details.days} Day Rental</p>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-[10px] md:text-xs uppercase tracking-widest font-bold">
@@ -246,12 +249,12 @@ export default function CheckoutPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex justify-between text-xs md:text-sm uppercase tracking-widest">
-                <span className="text-muted-foreground">Base Rental</span>
+                <span className="text-muted-foreground">Base Rental ({details.days} Days)</span>
                 <span>₹{details.totalPrice.toLocaleString()}</span>
               </div>
               <div className="flex justify-between text-xs md:text-sm uppercase tracking-widest">
                 <span className="text-muted-foreground">Service Fee</span>
-                <span>₹500.00</span>
+                <span>₹{serviceFee.toLocaleString()}.00</span>
               </div>
               <div className="h-px bg-border my-4" />
               <div className="flex justify-between items-center">

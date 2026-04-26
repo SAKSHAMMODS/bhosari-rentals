@@ -8,13 +8,11 @@ import { Calendar } from '@/components/ui/calendar';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { DateRange } from 'react-day-picker';
-import { addDays, format, startOfToday } from 'date-fns';
+import { addDays, format, startOfToday, differenceInDays } from 'date-fns';
 import { Calendar as CalendarIcon, ShieldCheck, Info, User, Phone, Mail, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useUser } from '@/firebase';
 import { BIKES } from '@/lib/bikes';
-
-const RENTAL_DAYS = 7;
 
 export default function BookingPage() {
   const params = useParams();
@@ -35,9 +33,10 @@ export default function BookingPage() {
   useEffect(() => {
     setHasMounted(true);
     const today = startOfToday();
+    // Default to a 1-day selection initially
     setDate({
       from: today,
-      to: addDays(today, RENTAL_DAYS - 1),
+      to: addDays(today, 1),
     });
     
     if (user?.email) {
@@ -46,17 +45,20 @@ export default function BookingPage() {
   }, [user]);
 
   const handleSelect = (range: DateRange | undefined) => {
-    if (range?.from) {
-      setDate({
-        from: range.from,
-        to: addDays(range.from, RENTAL_DAYS - 1),
-      });
-    }
+    setDate(range);
   };
 
+  const rentalDays = useMemo(() => {
+    if (date?.from && date?.to) {
+      const days = differenceInDays(date.to, date.from);
+      return days > 0 ? days : 1;
+    }
+    return 1;
+  }, [date]);
+
   const totalPrice = useMemo(() => {
-    return bike ? RENTAL_DAYS * bike.price : 0;
-  }, [bike]);
+    return bike ? rentalDays * bike.price : 0;
+  }, [bike, rentalDays]);
 
   const handleProceedToPayment = (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,7 +77,7 @@ export default function BookingPage() {
       startDate: format(date.from, 'yyyy-MM-dd'),
       endDate: format(date.to, 'yyyy-MM-dd'),
       totalPrice,
-      days: RENTAL_DAYS,
+      days: rentalDays,
       customer: formData
     };
 
@@ -105,16 +107,16 @@ export default function BookingPage() {
         <div className="lg:col-span-7 space-y-6 md:space-y-8">
           <section>
             <h1 className="text-3xl md:text-4xl font-bold tracking-tighter mb-2 uppercase">{bike.brand} {bike.model}</h1>
-            <p className="text-[10px] md:text-xs text-muted-foreground uppercase tracking-[0.3em]">Configure Your 7-Day Rental Block</p>
+            <p className="text-[10px] md:text-xs text-muted-foreground uppercase tracking-[0.3em]">Configure Your Rental Schedule</p>
           </section>
 
           <Card className="bg-card border-border overflow-hidden">
             <CardHeader>
               <CardTitle className="text-xs md:text-sm tracking-widest uppercase flex items-center gap-2">
-                <CalendarIcon className="w-4 h-4 text-primary" /> 1. Select Start Date
+                <CalendarIcon className="w-4 h-4 text-primary" /> 1. Select Dates
               </CardTitle>
               <CardDescription className="text-[9px] md:text-[10px] uppercase tracking-widest">
-                Choose the day your rental begins. Duration is fixed at 7 days.
+                Choose your start and end dates. Pricing is calculated per day.
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col items-center p-0 md:p-6 pb-6">
@@ -134,9 +136,10 @@ export default function BookingPage() {
                     {date?.from && date?.to ? (
                       <span className="block">
                         Rental Period: <span className="text-primary">{format(date.from, 'PP')}</span> — <span className="text-primary">{format(date.to, 'PP')}</span>
+                        <span className="block mt-1 text-[8px] text-muted-foreground">Total Duration: {rentalDays} {rentalDays === 1 ? 'Day' : 'Days'}</span>
                       </span>
                     ) : (
-                      "Select a start date"
+                      "Select a date range"
                     )}
                   </p>
                 </div>
@@ -216,8 +219,8 @@ export default function BookingPage() {
                   <span className="font-bold">₹{bike.price}</span>
                 </div>
                 <div className="flex justify-between text-[10px] md:text-xs uppercase tracking-widest">
-                  <span className="text-muted-foreground">Block Duration</span>
-                  <span className="font-bold">{RENTAL_DAYS} Days</span>
+                  <span className="text-muted-foreground">Duration</span>
+                  <span className="font-bold">{rentalDays} {rentalDays === 1 ? 'Day' : 'Days'}</span>
                 </div>
               </div>
 
@@ -245,7 +248,7 @@ export default function BookingPage() {
               <Button 
                 type="submit" 
                 form="booking-form"
-                disabled={!date?.from}
+                disabled={!date?.from || !date?.to}
                 className="w-full bg-primary hover:bg-primary/90 text-white glow-primary uppercase tracking-[0.2em] font-bold py-6 md:py-8 text-[12px] md:text-sm"
               >
                 Proceed to Checkout

@@ -54,7 +54,7 @@ export function BikeCard({ bike }: { bike: BikeProps }) {
         </p>
         <div className="mt-4 grid grid-cols-2 gap-2">
           <div className="flex items-center gap-2 text-[9px] md:text-[10px] text-muted-foreground uppercase tracking-wider">
-            <Clock className="w-3 h-3 shrink-0" /> 7-Day Block
+            <Clock className="w-3 h-3 shrink-0" /> Custom Days
           </div>
           <div className="flex items-center gap-2 text-[9px] md:text-[10px] text-muted-foreground uppercase tracking-wider">
             <Activity className="w-3 h-3 shrink-0" /> Professional
