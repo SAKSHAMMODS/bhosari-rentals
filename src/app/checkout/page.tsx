@@ -29,17 +29,26 @@ export default function CheckoutPage() {
   const router = useRouter();
   const [details, setDetails] = useState<RentalDetails | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [confirmationId, setConfirmationId] = useState<string | null>(null);
+  const [confirmationId, setConfirmationId] = useState<string>("");
 
   useEffect(() => {
-    const data = sessionStorage.getItem('pendingRental');
-    if (!data) {
-      router.push('/');
+    // Only run on client
+    const rawData = sessionStorage.getItem('pendingRental');
+    
+    if (!rawData) {
+      if (!isSuccess) router.push('/');
       return;
     }
-    setDetails(JSON.parse(data));
-    setConfirmationId(`VH-${Math.random().toString(36).substring(2, 11)}`.toUpperCase());
-  }, [router]);
+
+    try {
+      const parsedData = JSON.parse(rawData);
+      setDetails(parsedData);
+      setConfirmationId(`VH-${Math.random().toString(36).substring(2, 11)}`.toUpperCase());
+    } catch (e) {
+      console.error("Failed to parse rental details", e);
+      router.push('/');
+    }
+  }, [router, isSuccess]);
 
   const handlePaymentSuccess = (paymentDetails: any) => {
     setIsSuccess(true);
@@ -49,12 +58,6 @@ export default function CheckoutPage() {
       description: "Electronic documentation transmitted.",
     });
   };
-
-  if (!details && !isSuccess) return (
-    <div className="flex items-center justify-center min-h-[60vh]">
-      <Loader2 className="w-8 h-8 animate-spin text-primary" />
-    </div>
-  );
 
   if (isSuccess) {
     return (
@@ -79,7 +82,7 @@ export default function CheckoutPage() {
             <div className="flex items-start gap-2 pt-2 border-t border-border">
               <Mail className="w-4 h-4 text-primary shrink-0" />
               <p className="text-[9px] md:text-[10px] uppercase tracking-widest text-muted-foreground leading-normal">
-                Transmitted to: <span className="text-white font-bold block md:inline">{details?.customer.email}</span>
+                Transmitted to: <span className="text-white font-bold block md:inline">{details?.customer.email || 'Authorized Email'}</span>
               </p>
             </div>
           </div>
@@ -94,12 +97,19 @@ export default function CheckoutPage() {
     );
   }
 
-  const finalAmountINR = (details?.totalPrice || 0) + 500;
+  if (!details) return (
+    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+      <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">Initializing Secure Session...</p>
+    </div>
+  );
+
+  const finalAmountINR = (details.totalPrice || 0) + 500;
   const finalAmountUSD = (finalAmountINR / 80).toFixed(2);
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
-      <Link href={details ? `/book/${details.bikeId}` : "/"} className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-6 md:mb-8 uppercase tracking-widest text-[10px] md:text-xs font-bold">
+      <Link href={`/book/${details.bikeId}`} className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-6 md:mb-8 uppercase tracking-widest text-[10px] md:text-xs font-bold">
         <ArrowLeft className="w-4 h-4" /> Edit Configuration
       </Link>
 
@@ -115,22 +125,22 @@ export default function CheckoutPage() {
               <CardContent className="p-4 md:p-6">
                 <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-6">
                   <div>
-                    <p className="text-[9px] md:text-[10px] text-muted-foreground uppercase tracking-widest mb-1">{details?.brand}</p>
-                    <h3 className="text-lg md:text-xl font-bold">{details?.model}</h3>
+                    <p className="text-[9px] md:text-[10px] text-muted-foreground uppercase tracking-widest mb-1">{details.brand}</p>
+                    <h3 className="text-lg md:text-xl font-bold">{details.model}</h3>
                   </div>
                   <div className="text-left sm:text-right w-full sm:w-auto p-3 sm:p-0 bg-secondary/30 sm:bg-transparent rounded-sm border border-border sm:border-0">
-                    <p className="text-xs font-bold uppercase tracking-widest text-accent">₹{details?.pricePerDay} / day</p>
+                    <p className="text-xs font-bold uppercase tracking-widest text-accent">₹{details.pricePerDay} / day</p>
                     <p className="text-[9px] md:text-[10px] text-muted-foreground uppercase tracking-widest mt-1">7-Day Rental Block</p>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-[10px] md:text-xs uppercase tracking-widest font-bold">
                   <div className="bg-secondary/50 p-4 rounded-sm border border-border">
                     <span className="text-muted-foreground block text-[8px] mb-1">Deployment Date</span>
-                    {details?.startDate}
+                    {details.startDate}
                   </div>
                   <div className="bg-secondary/50 p-4 rounded-sm border border-border">
                     <span className="text-muted-foreground block text-[8px] mb-1">Return Date</span>
-                    {details?.endDate}
+                    {details.endDate}
                   </div>
                 </div>
               </CardContent>
@@ -145,15 +155,15 @@ export default function CheckoutPage() {
               <CardContent className="p-4 md:p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                 <div>
                   <p className="text-[9px] md:text-[10px] text-muted-foreground uppercase tracking-widest mb-1">Identification</p>
-                  <p className="text-[10px] md:text-xs font-bold uppercase truncate">{details?.customer.name}</p>
+                  <p className="text-[10px] md:text-xs font-bold uppercase truncate">{details.customer.name}</p>
                 </div>
                 <div>
                   <p className="text-[9px] md:text-[10px] text-muted-foreground uppercase tracking-widest mb-1">Transmission</p>
-                  <p className="text-[10px] md:text-xs font-bold uppercase truncate">{details?.customer.email}</p>
+                  <p className="text-[10px] md:text-xs font-bold uppercase truncate">{details.customer.email}</p>
                 </div>
                 <div>
                   <p className="text-[9px] md:text-[10px] text-muted-foreground uppercase tracking-widest mb-1">Comm Link</p>
-                  <p className="text-[10px] md:text-xs font-bold uppercase">{details?.customer.phone}</p>
+                  <p className="text-[10px] md:text-xs font-bold uppercase">{details.customer.phone}</p>
                 </div>
               </CardContent>
             </Card>
@@ -168,7 +178,7 @@ export default function CheckoutPage() {
             <CardContent className="space-y-4">
               <div className="flex justify-between text-xs md:text-sm uppercase tracking-widest">
                 <span className="text-muted-foreground">Base Rental</span>
-                <span>₹{details?.totalPrice.toLocaleString()}</span>
+                <span>₹{details.totalPrice.toLocaleString()}</span>
               </div>
               <div className="flex justify-between text-xs md:text-sm uppercase tracking-widest">
                 <span className="text-muted-foreground">Service Fee</span>
@@ -201,7 +211,7 @@ export default function CheckoutPage() {
                               currency_code: "USD",
                               value: finalAmountUSD,
                             },
-                            description: `VH: ${details?.brand} ${details?.model}`
+                            description: `VH: ${details.brand} ${details.model}`
                           }],
                         });
                       }}
